@@ -1,30 +1,89 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:pos_system/main.dart';
+import 'package:pos_system/models/analytics.dart';
+import 'package:pos_system/models/product_unit.dart';
+import 'package:pos_system/models/sale.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('Sale & Credit Debt Tests', () {
+    test('Calculates credit debt correctly when partially paid', () {
+      final Sale sale = Sale(
+        id: 'INV-001',
+        items: const <SaleItem>[
+          SaleItem(
+            productId: 'p1',
+            name: 'شیر',
+            unit: ProductUnit.piece,
+            unitPrice: 1500,
+            unitCost: 1000,
+            quantity: 2,
+          ),
+        ],
+        createdAt: DateTime.now(),
+        cashierId: 'c1',
+        cashierName: 'ئەحمەد',
+        paidAmount: 1000,
+        paymentMethod: PaymentMethod.credit,
+        customerName: 'کاروان عەلی',
+        customerPhone: '0770 123 4567',
+      );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      expect(sale.total, 3000);
+      expect(sale.paidAmount, 1000);
+      expect(sale.isCredit, true);
+      expect(sale.debtAmount, 2000);
+      expect(sale.actualPaid, 1000);
+      expect(sale.customerName, 'کاروان عەلی');
+    });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    test('SaleSummary properly aggregates cash, card, and credit debt', () {
+      final List<Sale> sales = <Sale>[
+        Sale(
+          id: 'INV-CASH',
+          items: const <SaleItem>[
+            SaleItem(
+              productId: 'p1',
+              name: 'ئاو',
+              unit: ProductUnit.piece,
+              unitPrice: 500,
+              unitCost: 250,
+              quantity: 2,
+            ),
+          ],
+          createdAt: DateTime.now(),
+          cashierId: 'c1',
+          cashierName: 'ئەحمەد',
+          paidAmount: 1000,
+          paymentMethod: PaymentMethod.cash,
+        ),
+        Sale(
+          id: 'INV-CREDIT',
+          items: const <SaleItem>[
+            SaleItem(
+              productId: 'p2',
+              name: 'برنج',
+              unit: ProductUnit.piece,
+              unitPrice: 4000,
+              unitCost: 3000,
+              quantity: 1,
+            ),
+          ],
+          createdAt: DateTime.now(),
+          cashierId: 'c1',
+          cashierName: 'ئەحمەد',
+          paidAmount: 1000,
+          paymentMethod: PaymentMethod.credit,
+          customerName: 'شوان محەمەد',
+        ),
+      ];
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      final SaleSummary summary = SaleSummary.fromSales(sales);
+      expect(summary.invoiceCount, 2);
+      expect(summary.revenue, 5000); // 1000 + 4000
+      expect(summary.cashRevenue, 2000); // 1000 pure cash + 1000 upfront credit
+      expect(summary.cardRevenue, 0);
+      expect(summary.creditDebt, 3000); // 4000 - 1000
+      expect(summary.creditInvoiceCount, 1);
+      expect(summary.collectedRevenue, 2000); // 1000 + 1000
+    });
   });
 }

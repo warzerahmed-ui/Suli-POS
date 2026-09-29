@@ -82,7 +82,9 @@ class SalesController extends ChangeNotifier {
     if (needle.isEmpty) return list;
     return list.where((Sale sale) {
       return sale.id.toLowerCase().contains(needle) ||
-          sale.cashierName.toLowerCase().contains(needle);
+          sale.cashierName.toLowerCase().contains(needle) ||
+          sale.customerName.toLowerCase().contains(needle) ||
+          sale.customerPhone.toLowerCase().contains(needle);
     }).toList();
   }
 
@@ -95,6 +97,8 @@ class SalesController extends ChangeNotifier {
     double taxPercent = 0,
     PaymentMethod paymentMethod = PaymentMethod.cash,
     double? paidAmount,
+    String customerName = '',
+    String customerPhone = '',
     String note = '',
     DateTime? now,
   }) async {
@@ -107,6 +111,8 @@ class SalesController extends ChangeNotifier {
       taxPercent: taxPercent,
       paymentMethod: paymentMethod,
       paidAmount: paidAmount,
+      customerName: customerName,
+      customerPhone: customerPhone,
       note: note,
     );
 
@@ -126,6 +132,8 @@ class SalesController extends ChangeNotifier {
     double taxPercent = 0,
     PaymentMethod paymentMethod = PaymentMethod.cash,
     double? paidAmount,
+    String customerName = '',
+    String customerPhone = '',
     String note = '',
   }) {
     final int sequence = _repository.nextInvoiceSequence();
@@ -141,8 +149,23 @@ class SalesController extends ChangeNotifier {
       taxPercent: taxPercent,
       paidAmount: paidAmount ?? 0,
       paymentMethod: paymentMethod,
+      customerName: customerName,
+      customerPhone: customerPhone,
       note: note,
     );
+  }
+
+  /// دانەوەی قەرزی پسووڵە (بە تەواوی یان بەشەکی).
+  Future<void> settleDebt(String id, {double? amount}) async {
+    final int index = _sales.indexWhere((Sale sale) => sale.id == id);
+    if (index < 0) return;
+    final Sale sale = _sales[index];
+    final double newPaid =
+        amount != null ? (sale.paidAmount + amount) : sale.total;
+    _sales = List<Sale>.from(_sales);
+    _sales[index] = sale.copyWith(paidAmount: newPaid);
+    await _repository.saveSales(_sales);
+    notifyListeners();
   }
 
   /// هەڵوەشاندنەوەی پسووڵە و گەڕاندنەوەی کاڵاکان بۆ کۆگا.

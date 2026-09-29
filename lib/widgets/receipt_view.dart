@@ -23,6 +23,12 @@ String buildReceiptText({
   buffer.writeln('${AppStrings.invoiceNumber}: ${sale.id}');
   buffer.writeln('${AppStrings.date}: ${Formatters.dateTime(sale.createdAt)}');
   buffer.writeln('${AppStrings.cashier}: ${sale.cashierName}');
+  if (sale.customerName.isNotEmpty) {
+    buffer.writeln('${AppStrings.customerName}: ${sale.customerName}');
+  }
+  if (sale.customerPhone.isNotEmpty) {
+    buffer.writeln('${AppStrings.customerPhone}: ${sale.customerPhone}');
+  }
   buffer.writeln(line);
 
   for (int index = 0; index < sale.items.length; index++) {
@@ -49,11 +55,17 @@ String buildReceiptText({
     );
   }
   buffer.writeln('${AppStrings.total}: ${receiptMoney(settings, sale.total)}');
+  buffer.writeln('${AppStrings.paymentMethod}: ${sale.paymentMethod.label}');
   buffer.writeln(
     '${AppStrings.paidAmount}: ${receiptMoney(settings, sale.paidAmount)}',
   );
-  buffer.writeln('${AppStrings.change}: ${receiptMoney(settings, sale.change)}');
-  buffer.writeln('${AppStrings.paymentMethod}: ${sale.paymentMethod.label}');
+  if (sale.isCredit) {
+    buffer.writeln(
+      '${AppStrings.remainingDebt}: ${receiptMoney(settings, sale.debtAmount)}',
+    );
+  } else {
+    buffer.writeln('${AppStrings.change}: ${receiptMoney(settings, sale.change)}');
+  }
   if (sale.note.trim().isNotEmpty) {
     buffer.writeln('${AppStrings.note}: ${sale.note.trim()}');
   }
@@ -118,6 +130,10 @@ class ReceiptView extends StatelessWidget {
         _metaRow(context, AppStrings.date, Formatters.dateTime(sale.createdAt)),
         _metaRow(context, AppStrings.cashier, sale.cashierName),
         _metaRow(context, AppStrings.paymentMethod, sale.paymentMethod.label),
+        if (sale.customerName.isNotEmpty)
+          _metaRow(context, AppStrings.customerName, sale.customerName),
+        if (sale.customerPhone.isNotEmpty)
+          _metaRow(context, AppStrings.customerPhone, sale.customerPhone),
         const Divider(height: 1),
         const SizedBox(height: 8),
         ...sale.items.map(
@@ -166,7 +182,18 @@ class ReceiptView extends StatelessWidget {
         const SizedBox(height: 4),
         _totalRow(context, AppStrings.total, sale.total, bold: true),
         _totalRow(context, AppStrings.paidAmount, sale.paidAmount),
-        _totalRow(context, AppStrings.change, sale.change),
+        if (sale.isCredit)
+          _totalRow(
+            context,
+            AppStrings.remainingDebt,
+            sale.debtAmount,
+            bold: sale.debtAmount > 0,
+            valueColor: sale.debtAmount > 0
+                ? theme.colorScheme.error
+                : null,
+          )
+        else
+          _totalRow(context, AppStrings.change, sale.change),
         if (sale.note.trim().isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 8),
@@ -231,11 +258,17 @@ class ReceiptView extends StatelessWidget {
     String label,
     double value, {
     bool bold = false,
+    Color? valueColor,
   }) {
     final ThemeData theme = Theme.of(context);
     final TextStyle? style = bold
-        ? theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)
-        : theme.textTheme.bodyMedium;
+        ? theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: valueColor,
+          )
+        : theme.textTheme.bodyMedium?.copyWith(
+            color: valueColor,
+          );
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(

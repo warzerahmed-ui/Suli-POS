@@ -62,6 +62,15 @@ class DashboardScreen extends StatelessWidget {
                 hint: '${AppStrings.profitMargin}: '
                     '${today.profitMargin.toStringAsFixed(1)}%',
               ),
+            StatCard(
+              title: AppStrings.todayDebt,
+              value: settings.money(today.creditDebt),
+              icon: Icons.account_balance_wallet_outlined,
+              color: today.creditDebt > 0
+                  ? StatusColors.warning(context)
+                  : Theme.of(context).colorScheme.outline,
+              hint: '${AppStrings.creditSales}: ${today.creditInvoiceCount}',
+            ),
             if (isAdmin)
               StatCard(
                 title: AppStrings.inventoryValue,
@@ -178,15 +187,44 @@ class _RecentSalesCard extends StatelessWidget {
                       color: theme.colorScheme.primary,
                     ),
                   ),
-                  title: Text(
-                    sale.id,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                    ),
+                  title: Row(
+                    children: <Widget>[
+                      Flexible(
+                        child: Text(
+                          sale.id,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      if (sale.isCredit) ...<Widget>[
+                        const SizedBox(width: 6),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.errorContainer
+                                .withValues(alpha: 0.6),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                          child: Text(
+                            sale.customerName.isNotEmpty
+                                ? '${AppStrings.credit}: ${sale.customerName}'
+                                : AppStrings.credit,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: theme.colorScheme.error,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                   subtitle: Text(
-                    '${Formatters.dateTime(sale.createdAt)} • '
-                    '${sale.cashierName}',
+                    sale.isCredit && sale.debtAmount > 0
+                        ? '${Formatters.dateTime(sale.createdAt)} • ${AppStrings.remainingDebt}: ${settings.money(sale.debtAmount)}'
+                        : '${Formatters.dateTime(sale.createdAt)} • ${sale.cashierName}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

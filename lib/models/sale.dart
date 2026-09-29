@@ -85,6 +85,8 @@ class Sale {
     this.taxPercent = 0,
     this.paidAmount = 0,
     this.paymentMethod = PaymentMethod.cash,
+    this.customerName = '',
+    this.customerPhone = '',
     this.note = '',
     this.voidedAt,
     this.voidedBy,
@@ -100,11 +102,29 @@ class Sale {
   final double taxPercent;
   final double paidAmount;
   final PaymentMethod paymentMethod;
+  final String customerName;
+  final String customerPhone;
   final String note;
   final DateTime? voidedAt;
   final String? voidedBy;
 
   bool get isVoided => voidedAt != null;
+
+  /// فرۆشتن بە قەرزە یان قەرزی ماوە.
+  bool get isCredit => paymentMethod == PaymentMethod.credit || debtAmount > 0;
+
+  /// بڕی قەرزی ماوە لەسەر ئەم پسووڵەیە.
+  double get debtAmount {
+    if (isVoided) return 0;
+    final double diff = total - paidAmount;
+    return diff > 0 ? diff : 0;
+  }
+
+  /// بڕی پارەی دراو (بە بێ زێدەگی گەڕانەوە).
+  double get actualPaid {
+    if (paidAmount <= 0) return 0;
+    return paidAmount > total ? total : paidAmount;
+  }
 
   /// کۆی دێرەکان پێش داشکاندن و باج.
   double get subtotal =>
@@ -144,6 +164,8 @@ class Sale {
     double? taxPercent,
     double? paidAmount,
     PaymentMethod? paymentMethod,
+    String? customerName,
+    String? customerPhone,
     String? note,
     DateTime? voidedAt,
     String? voidedBy,
@@ -158,6 +180,8 @@ class Sale {
       taxPercent: taxPercent ?? this.taxPercent,
       paidAmount: paidAmount ?? this.paidAmount,
       paymentMethod: paymentMethod ?? this.paymentMethod,
+      customerName: customerName ?? this.customerName,
+      customerPhone: customerPhone ?? this.customerPhone,
       note: note ?? this.note,
       voidedAt: voidedAt ?? this.voidedAt,
       voidedBy: voidedBy ?? this.voidedBy,
@@ -174,6 +198,8 @@ class Sale {
         'taxPercent': taxPercent,
         'paidAmount': paidAmount,
         'paymentMethod': paymentMethod.name,
+        'customerName': customerName,
+        'customerPhone': customerPhone,
         'note': note,
         'voidedAt': voidedAt?.toIso8601String(),
         'voidedBy': voidedBy,
@@ -193,6 +219,8 @@ class Sale {
         taxPercent: (json['taxPercent'] as num?)?.toDouble() ?? 0,
         paidAmount: (json['paidAmount'] as num?)?.toDouble() ?? 0,
         paymentMethod: PaymentMethod.fromName(json['paymentMethod'] as String?),
+        customerName: json['customerName'] as String? ?? '',
+        customerPhone: json['customerPhone'] as String? ?? '',
         note: json['note'] as String? ?? '',
         voidedAt: json['voidedAt'] == null
             ? null

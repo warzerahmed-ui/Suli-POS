@@ -225,7 +225,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 title: const Text(AppStrings.seedDemoData),
                 subtitle: const Text(AppStrings.seedConfirm),
                 trailing: const Icon(Icons.chevron_left),
-                onTap: () => _loadDemoData(context),
+                onTap: _loadDemoData,
               ),
               ListTile(
                 leading: Icon(
@@ -238,7 +238,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 subtitle: const Text(AppStrings.resetConfirm),
                 trailing: const Icon(Icons.chevron_left),
-                onTap: () => _resetData(context),
+                onTap: _resetData,
               ),
             ],
           ),
@@ -265,14 +265,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   /// بارکردنەوەی داتای نموونە.
-  Future<void> _loadDemoData(BuildContext context) async {
+  Future<void> _loadDemoData() async {
     final bool confirmed = await AppDialogs.confirm(
       context,
       message: AppStrings.seedConfirm,
       confirmLabel: AppStrings.seedDemoData,
       danger: true,
     );
-    if (!confirmed || !context.mounted) return;
+    if (!confirmed || !mounted) return;
 
     await context.read<AppProviders>().loadDemoData();
     if (!mounted) return;
@@ -282,14 +282,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   /// سڕینەوەی هەموو داتا (بەکارهێنەر دەچێتە دەرەوە).
-  Future<void> _resetData(BuildContext context) async {
+  Future<void> _resetData() async {
     final bool confirmed = await AppDialogs.confirm(
       context,
       message: AppStrings.resetConfirm,
       confirmLabel: AppStrings.resetData,
       danger: true,
     );
-    if (!confirmed || !context.mounted) return;
+    if (!confirmed || !mounted) return;
 
     await context.read<AppProviders>().resetAll();
     if (!mounted) return;

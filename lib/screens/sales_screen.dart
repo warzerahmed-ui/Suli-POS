@@ -29,6 +29,7 @@ class _SalesScreenState extends State<SalesScreen> {
 
   _RangePreset _preset = _RangePreset.today;
   DateTimeRange? _customRange;
+  PaymentMethod? _paymentMethodFilter;
   String _query = '';
 
   @override
@@ -101,7 +102,12 @@ class _SalesScreenState extends State<SalesScreen> {
     final DateTimeRange range = _range;
     final List<Sale> inRange =
         sales.salesInRange(range.start, range.end, includeVoided: true);
-    final List<Sale> filtered = sales.search(_query, source: inRange);
+    final List<Sale> methodFiltered = _paymentMethodFilter == null
+        ? inRange
+        : inRange
+            .where((Sale s) => s.paymentMethod == _paymentMethodFilter)
+            .toList();
+    final List<Sale> filtered = sales.search(_query, source: methodFiltered);
     final SaleSummary summary = sales.summaryOf(inRange);
 
     return Column(
@@ -157,6 +163,34 @@ class _SalesScreenState extends State<SalesScreen> {
                       .toList(),
                 ),
               ),
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 8),
+                      child: FilterChip(
+                        label: const Text(AppStrings.all),
+                        selected: _paymentMethodFilter == null,
+                        onSelected: (_) =>
+                            setState(() => _paymentMethodFilter = null),
+                      ),
+                    ),
+                    ...PaymentMethod.values.map(
+                      (PaymentMethod method) => Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 8),
+                        child: FilterChip(
+                          label: Text(method.label),
+                          selected: _paymentMethodFilter == method,
+                          onSelected: (bool selected) => setState(() =>
+                              _paymentMethodFilter = selected ? method : null),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -181,6 +215,17 @@ class _SalesScreenState extends State<SalesScreen> {
                   color: StatusColors.info(context),
                 ),
               ),
+              if (summary.creditDebt > 0) ...<Widget>[
+                const SizedBox(width: 12),
+                Expanded(
+                  child: StatCard(
+                    title: AppStrings.debt,
+                    value: settings.money(summary.creditDebt),
+                    icon: Icons.assignment_late_outlined,
+                    color: StatusColors.warning(context),
+                  ),
+                ),
+              ],
               if (isAdmin) ...<Widget>[
                 const SizedBox(width: 12),
                 Expanded(
@@ -232,25 +277,56 @@ class _SaleTile extends StatelessWidget {
         leading: CircleAvatar(
           backgroundColor: sale.isVoided
               ? theme.colorScheme.errorContainer
-              : theme.colorScheme.primary.withValues(alpha: 0.12),
+              : (sale.isCredit && sale.debtAmount > 0)
+                  ? StatusColors.warning(context).withValues(alpha: 0.15)
+                  : theme.colorScheme.primary.withValues(alpha: 0.12),
           child: Icon(
-            sale.isVoided ? Icons.undo : Icons.receipt_long,
+            sale.isVoided
+                ? Icons.undo
+                : (sale.isCredit ? Icons.assignment_outlined : Icons.receipt_long),
             size: 20,
             color: sale.isVoided
                 ? theme.colorScheme.onErrorContainer
-                : theme.colorScheme.primary,
+                : (sale.isCredit && sale.debtAmount > 0)
+                    ? StatusColors.warning(context)
+                    : theme.colorScheme.primary,
           ),
         ),
         title: Row(
           children: <Widget>[
             Flexible(
               child: Text(
-                sale.id,
+                sale.customerName.isNotEmpty
+                    ? '${sale.id} • ${sale.customerName}'
+                    : sale.id,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
+            if (sale.isCredit)
+              Padding(
+                padding: const EdgeInsetsDirectional.only(start: 8),
+                child: Chip(
+                  label: Text(
+                    sale.debtAmount > 0
+                        ? AppStrings.debt
+                        : AppStrings.debtSettled,
+                  ),
+                  labelStyle: theme.textTheme.labelSmall?.copyWith(
+                    color: sale.debtAmount > 0
+                        ? StatusColors.warning(context)
+                        : StatusColors.success(context),
+                  ),
+                  backgroundColor: (sale.debtAmount > 0
+                          ? StatusColors.warning(context)
+                          : StatusColors.success(context))
+                      .withValues(alpha: 0.15),
+                  side: BorderSide.none,
+                  visualDensity: VisualDensity.compact,
+                ),
+              ),
             if (sale.isVoided)
               Padding(
                 padding: const EdgeInsetsDirectional.only(start: 8),
@@ -273,11 +349,25 @@ class _SaleTile extends StatelessWidget {
             maxLines: 2,
           ),
         ),
-        trailing: Text(
-          settings.money(sale.total),
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-          ),
+        trailing: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            Text(
+              settings.money(sale.total),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            if (sale.isCredit && sale.debtAmount > 0)
+              Text(
+                '${AppStrings.debt}: ${settings.money(sale.debtAmount)}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: StatusColors.warning(context),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+          ],
         ),
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute<void>(

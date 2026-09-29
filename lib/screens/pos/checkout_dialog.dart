@@ -40,6 +40,8 @@ class _CheckoutDialog extends StatefulWidget {
 class _CheckoutDialogState extends State<_CheckoutDialog> {
   final TextEditingController _paidController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
+  final TextEditingController _customerNameController = TextEditingController();
+  final TextEditingController _customerPhoneController = TextEditingController();
 
   PaymentMethod _method = PaymentMethod.cash;
   String? _error;
@@ -60,15 +62,17 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
   void dispose() {
     _paidController.dispose();
     _noteController.dispose();
+    _customerNameController.dispose();
+    _customerPhoneController.dispose();
     super.dispose();
   }
 
   double get _total => context.read<CartController>().total;
 
-  double get _paid {
-    if (_method == PaymentMethod.credit) return _total;
-    return double.tryParse(_paidController.text.trim().replaceAll(',', '')) ?? 0;
-  }
+  double get _paid =>
+      double.tryParse(_paidController.text.trim().replaceAll(',', '')) ?? 0;
+
+  double get _remainingDebt => (_total - _paid) > 0 ? (_total - _paid) : 0;
 
   Future<void> _confirm() async {
     final CartController cart = context.read<CartController>();
@@ -81,6 +85,11 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
     final double paid = _paid;
     if (_method != PaymentMethod.credit && paid < total) {
       setState(() => _error = AppStrings.paidLessThanTotal);
+      return;
+    }
+    if (_method == PaymentMethod.credit &&
+        _customerNameController.text.trim().isEmpty) {
+      setState(() => _error = 'تکایە ناوی کڕیار یان قەرزدار بنووسە');
       return;
     }
     if (cart.hasStockIssue) {
@@ -101,6 +110,8 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
       taxPercent: cart.taxPercent,
       paymentMethod: _method,
       paidAmount: paid,
+      customerName: _customerNameController.text.trim(),
+      customerPhone: _customerPhoneController.text.trim(),
       note: _noteController.text.trim(),
     );
     cart.resetAfterSale();
@@ -159,11 +170,99 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
                     onSelected: (_) => setState(() {
                       _method = method;
                       _error = null;
+                      if (method == PaymentMethod.credit) {
+                        _paidController.text = '0';
+                      } else if (_paidController.text == '0') {
+                        _paidController.text = Formatters.number(_total);
+                      }
                     }),
                   );
                 }).toList(),
               ),
-              if (_method != PaymentMethod.credit) ...<Widget>[
+              if (_method == PaymentMethod.credit) ...<Widget>[
+                const SizedBox(height: 16),
+                TextField(
+                  controller: _customerNameController,
+                  autofocus: true,
+                  decoration: const InputDecoration(
+                    labelText: AppStrings.customerName,
+                    prefixIcon: Icon(Icons.person_outline),
+                  ),
+                  onChanged: (_) => setState(() => _error = null),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _customerPhoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText:
+                        '${AppStrings.customerPhone} (${AppStrings.optional})',
+                    prefixIcon: Icon(Icons.phone_outlined),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: _paidController,
+                  keyboardType: TextInputType.number,
+                  onChanged: (_) => setState(() => _error = null),
+                  decoration: const InputDecoration(
+                    labelText: AppStrings.initialPayment,
+                    prefixIcon: Icon(Icons.payments_outlined),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children: <Widget>[
+                    ActionChip(
+                      label: const Text('بێ پێشەکی (٠)'),
+                      onPressed: () =>
+                          setState(() => _paidController.text = '0'),
+                    ),
+                    if (_total > 0)
+                      ActionChip(
+                        label: Text(
+                            'نیوەی (${Formatters.number((_total / 2).roundToDouble())})'),
+                        onPressed: () => setState(() => _paidController.text =
+                            Formatters.number((_total / 2).roundToDouble())),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.errorContainer.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: theme.colorScheme.error.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.account_balance_wallet_outlined,
+                          size: 20, color: theme.colorScheme.error),
+                      const SizedBox(width: 8),
+                      Text(
+                        AppStrings.remainingDebt,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: theme.colorScheme.error,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        settings.money(_remainingDebt),
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: theme.colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ] else ...<Widget>[
                 const SizedBox(height: 16),
                 TextField(
                   controller: _paidController,

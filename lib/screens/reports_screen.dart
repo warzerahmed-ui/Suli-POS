@@ -180,8 +180,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
               Icons.inventory_2_outlined,
               AppColors.primaryDark,
             ),
+            _statCard(
+              context,
+              AppStrings.totalDebt,
+              settings.money(summary.creditDebt),
+              Icons.account_balance_wallet_outlined,
+              summary.creditDebt > 0
+                  ? StatusColors.warning(context)
+                  : Theme.of(context).colorScheme.outline,
+            ),
           ],
         ),
+        const SizedBox(height: 16),
+        _PaymentBreakdownCard(summary: summary, settings: settings),
         const SizedBox(height: 16),
         SectionCard(
           title: AppStrings.salesByDay,
@@ -354,7 +365,7 @@ class _CashiersCard extends StatelessWidget {
 Future<void> exportSalesCsv(BuildContext context, List<Sale> sales) async {
   final StringBuffer buffer = StringBuffer();
   buffer.writeln(
-    'invoice,datetime,cashier,lines,subtotal,discount,tax,total,cost,'
+    'invoice,datetime,cashier,customer,phone,lines,subtotal,discount,tax,total,paid,debt,cost,'
     'profit,payment,status',
   );
   for (final Sale sale in sales) {
@@ -363,11 +374,15 @@ Future<void> exportSalesCsv(BuildContext context, List<Sale> sales) async {
         sale.id,
         Formatters.isoDateTime(sale.createdAt),
         '"${sale.cashierName}"',
+        '"${sale.customerName}"',
+        '"${sale.customerPhone}"',
         '${sale.lineCount}',
         sale.subtotal.toStringAsFixed(2),
         sale.safeDiscount.toStringAsFixed(2),
         sale.taxAmount.toStringAsFixed(2),
         sale.total.toStringAsFixed(2),
+        sale.paidAmount.toStringAsFixed(2),
+        sale.debtAmount.toStringAsFixed(2),
         sale.totalCost.toStringAsFixed(2),
         sale.profit.toStringAsFixed(2),
         sale.paymentMethod.name,
@@ -379,4 +394,101 @@ Future<void> exportSalesCsv(BuildContext context, List<Sale> sales) async {
   await Clipboard.setData(ClipboardData(text: buffer.toString()));
   if (!context.mounted) return;
   AppDialogs.showMessage(context, AppStrings.csvCopied);
+}
+
+/// کورتەی شێوازەکانی پارەدان (نەقد، کارت، قەرز).
+class _PaymentBreakdownCard extends StatelessWidget {
+  const _PaymentBreakdownCard({
+    required this.summary,
+    required this.settings,
+  });
+
+  final SaleSummary summary;
+  final SettingsController settings;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return SectionCard(
+      title: AppStrings.paymentBreakdown,
+      child: Column(
+        children: <Widget>[
+          _item(
+            context,
+            title: AppStrings.cashSales,
+            amount: summary.cashRevenue,
+            icon: Icons.payments_outlined,
+            color: AppColors.primary,
+          ),
+          const Divider(height: 16),
+          _item(
+            context,
+            title: AppStrings.cardSales,
+            amount: summary.cardRevenue,
+            icon: Icons.credit_card_outlined,
+            color: StatusColors.info(context),
+          ),
+          const Divider(height: 16),
+          _item(
+            context,
+            title: AppStrings.totalDebt,
+            amount: summary.creditDebt,
+            icon: Icons.account_balance_wallet_outlined,
+            color: summary.creditDebt > 0
+                ? theme.colorScheme.error
+                : theme.colorScheme.outline,
+            subtitle: '${summary.creditInvoiceCount} ${AppStrings.invoice}',
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _item(
+    BuildContext context, {
+    required String title,
+    required double amount,
+    required IconData icon,
+    required Color color,
+    String? subtitle,
+  }) {
+    final ThemeData theme = Theme.of(context);
+    return Row(
+      children: <Widget>[
+        CircleAvatar(
+          radius: 16,
+          backgroundColor: color.withValues(alpha: 0.12),
+          child: Icon(icon, size: 18, color: color),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                title,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              if (subtitle != null)
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        Text(
+          settings.money(amount),
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
 }

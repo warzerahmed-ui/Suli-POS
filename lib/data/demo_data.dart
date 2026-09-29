@@ -20,6 +20,12 @@ class DemoData {
   static const String _adminName = 'بەڕێوەبەری سیستەم';
   static const String _cashierId = 'user-cashier';
   static const String _cashierName = 'کاروان ئەحمەد';
+  static const List<String> _demoCustomers = <String>[
+    'کاروان عەلی',
+    'شوان محەمەد',
+    'ئەحمەد قادر',
+    'سۆران حەمە',
+  ];
 
   static List<Category> categories() => const <Category>[
         Category(id: 'cat-dairy', name: 'شیرەمەنی', iconKey: 'dairy', colorValue: 0xFF2E7D32),
@@ -102,7 +108,7 @@ class DemoData {
           final Product product = products[random.nextInt(products.length)];
           if (!usedProducts.add(product.id)) continue;
           final double quantity = product.unit.allowsFractions
-              ? (1 + random.nextInt(4)) / 2
+              ? (1 + random.nextInt(4)) / 2.0
               : (1 + random.nextInt(3)).toDouble();
           items.add(
             SaleItem(
@@ -127,6 +133,19 @@ class DemoData {
           (double sum, SaleItem item) => sum + item.total,
         );
 
+        final int methodRand = random.nextInt(6);
+        final PaymentMethod paymentMethod = methodRand == 0
+            ? PaymentMethod.card
+            : (methodRand == 1 ? PaymentMethod.credit : PaymentMethod.cash);
+        final bool isCredit = paymentMethod == PaymentMethod.credit;
+        final String customerName = isCredit
+            ? _demoCustomers[random.nextInt(_demoCustomers.length)]
+            : '';
+        final String customerPhone = isCredit ? '0770 123 4567' : '';
+        final double paidAmount = isCredit
+            ? (random.nextBool() ? 0.0 : (subtotal * 0.4).roundToDouble())
+            : subtotal;
+
         result.add(
           Sale(
             id: 'INV-${Formatters.isoDate(createdAt).replaceAll('-', '')}'
@@ -135,9 +154,10 @@ class DemoData {
             createdAt: createdAt,
             cashierId: soldByCashier ? _cashierId : _adminId,
             cashierName: soldByCashier ? _cashierName : _adminName,
-            paidAmount: subtotal,
-            paymentMethod:
-                random.nextInt(5) == 0 ? PaymentMethod.card : PaymentMethod.cash,
+            paidAmount: paidAmount,
+            paymentMethod: paymentMethod,
+            customerName: customerName,
+            customerPhone: customerPhone,
           ),
         );
       }

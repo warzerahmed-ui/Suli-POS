@@ -9,12 +9,23 @@ class SaleSummary {
     this.cost = 0,
     this.invoiceCount = 0,
     this.itemQuantity = 0,
+    this.cashRevenue = 0,
+    this.cardRevenue = 0,
+    this.creditDebt = 0,
+    this.creditInvoiceCount = 0,
   });
 
   final double revenue;
   final double cost;
   final int invoiceCount;
   final double itemQuantity;
+  final double cashRevenue;
+  final double cardRevenue;
+  final double creditDebt;
+  final int creditInvoiceCount;
+
+  /// داهاتی دەستبەجێی وەرگیراو (نەقد + کارت).
+  double get collectedRevenue => cashRevenue + cardRevenue;
 
   double get profit => revenue - cost;
 
@@ -26,19 +37,40 @@ class SaleSummary {
     double revenue = 0;
     double cost = 0;
     double quantity = 0;
+    double cash = 0;
+    double card = 0;
+    double debt = 0;
     int count = 0;
+    int creditCount = 0;
+
     for (final Sale sale in sales) {
       if (sale.isVoided) continue;
       revenue += sale.total;
       cost += sale.totalCost;
       quantity += sale.itemQuantity;
       count++;
+
+      if (sale.paymentMethod == PaymentMethod.card) {
+        card += sale.actualPaid;
+      } else {
+        cash += sale.actualPaid;
+      }
+
+      if (sale.isCredit) {
+        debt += sale.debtAmount;
+        if (sale.debtAmount > 0) creditCount++;
+      }
     }
+
     return SaleSummary(
       revenue: revenue,
       cost: cost,
       invoiceCount: count,
       itemQuantity: quantity,
+      cashRevenue: cash,
+      cardRevenue: card,
+      creditDebt: debt,
+      creditInvoiceCount: creditCount,
     );
   }
 }
