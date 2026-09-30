@@ -10,6 +10,7 @@ import '../state/settings_controller.dart';
 import '../widgets/app_widgets.dart';
 import '../data/pos_repository.dart';
 import '../widgets/brand_badge.dart';
+import 'customers_screen.dart';
 import 'dashboard_screen.dart';
 import 'pos/pos_screen.dart';
 import 'products_screen.dart';
@@ -65,6 +66,12 @@ class _AppShellState extends State<AppShell> {
         icon: Icons.receipt_long_outlined,
         selectedIcon: Icons.receipt_long,
         builder: (BuildContext context) => const SalesScreen(),
+      ),
+      _ShellSection(
+        label: 'کڕیاران و پۆینت',
+        icon: Icons.stars_outlined,
+        selectedIcon: Icons.stars,
+        builder: (BuildContext context) => const CustomersScreen(),
       ),
       if (isAdmin) ...<_ShellSection>[
         _ShellSection(

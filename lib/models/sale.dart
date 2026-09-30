@@ -88,6 +88,9 @@ class Sale {
     this.customerName = '',
     this.customerPhone = '',
     this.note = '',
+    this.pointsUsed = 0,
+    this.pointsDiscount = 0,
+    this.pointsEarned = 0,
     this.voidedAt,
     this.voidedBy,
   });
@@ -105,6 +108,9 @@ class Sale {
   final String customerName;
   final String customerPhone;
   final String note;
+  final int pointsUsed;
+  final double pointsDiscount;
+  final int pointsEarned;
   final DateTime? voidedAt;
   final String? voidedBy;
 
@@ -139,16 +145,23 @@ class Sale {
 
   /// داشکاندن بە سنووردارکردن — نابێت لە کۆی کاڵاکان زیاتر بێت.
   double get safeDiscount {
-    if (discount <= 0) return 0;
+    if (discount <= 0 || subtotal <= 0) return 0;
     return discount > subtotal ? subtotal : discount;
   }
 
+  /// کۆی گشتی داشکاندن (داشکاندنی ئاسایی + بەهای پۆینتە بەکارهاتووەکان).
+  double get totalDiscount {
+    if (subtotal <= 0) return 0;
+    final double combined = safeDiscount + pointsDiscount;
+    return combined > subtotal ? subtotal : combined;
+  }
+
   /// بڕی باج لەسەر بنەمای بەشی دوای داشکاندن.
-  double get taxAmount => (subtotal - safeDiscount) * taxPercent / 100;
+  double get taxAmount => (subtotal - totalDiscount) * taxPercent / 100;
 
-  double get total => subtotal - safeDiscount + taxAmount;
+  double get total => subtotal - totalDiscount + taxAmount;
 
-  double get profit => (subtotal - safeDiscount) - totalCost;
+  double get profit => (subtotal - totalDiscount) - totalCost;
 
   /// کۆی بڕی کاڵاکان.
   double get itemQuantity =>
@@ -170,6 +183,9 @@ class Sale {
     String? customerName,
     String? customerPhone,
     String? note,
+    int? pointsUsed,
+    double? pointsDiscount,
+    int? pointsEarned,
     DateTime? voidedAt,
     String? voidedBy,
   }) {
@@ -186,6 +202,9 @@ class Sale {
       customerName: customerName ?? this.customerName,
       customerPhone: customerPhone ?? this.customerPhone,
       note: note ?? this.note,
+      pointsUsed: pointsUsed ?? this.pointsUsed,
+      pointsDiscount: pointsDiscount ?? this.pointsDiscount,
+      pointsEarned: pointsEarned ?? this.pointsEarned,
       voidedAt: voidedAt ?? this.voidedAt,
       voidedBy: voidedBy ?? this.voidedBy,
     );
@@ -204,6 +223,9 @@ class Sale {
         'customerName': customerName,
         'customerPhone': customerPhone,
         'note': note,
+        'pointsUsed': pointsUsed,
+        'pointsDiscount': pointsDiscount,
+        'pointsEarned': pointsEarned,
         'voidedAt': voidedAt?.toIso8601String(),
         'voidedBy': voidedBy,
       };
@@ -225,6 +247,9 @@ class Sale {
         customerName: json['customerName'] as String? ?? '',
         customerPhone: json['customerPhone'] as String? ?? '',
         note: json['note'] as String? ?? '',
+        pointsUsed: (json['pointsUsed'] as num?)?.toInt() ?? 0,
+        pointsDiscount: (json['pointsDiscount'] as num?)?.toDouble() ?? 0,
+        pointsEarned: (json['pointsEarned'] as num?)?.toInt() ?? 0,
         voidedAt: json['voidedAt'] == null
             ? null
             : DateTime.tryParse(json['voidedAt'] as String),

@@ -101,6 +101,9 @@ class SalesController extends ChangeNotifier {
     String customerName = '',
     String customerPhone = '',
     String note = '',
+    int pointsUsed = 0,
+    double pointsDiscount = 0,
+    int pointsEarned = 0,
     DateTime? now,
   }) async {
     final DateTime createdAt = now ?? DateTime.now();
@@ -115,6 +118,9 @@ class SalesController extends ChangeNotifier {
       customerName: customerName,
       customerPhone: customerPhone,
       note: note,
+      pointsUsed: pointsUsed,
+      pointsDiscount: pointsDiscount,
+      pointsEarned: pointsEarned,
     );
 
     _sales = <Sale>[sale, ..._sales];
@@ -136,6 +142,9 @@ class SalesController extends ChangeNotifier {
     String customerName = '',
     String customerPhone = '',
     String note = '',
+    int pointsUsed = 0,
+    double pointsDiscount = 0,
+    int pointsEarned = 0,
   }) {
     final int sequence = _repository.nextInvoiceSequence();
     final String id = 'INV-${Formatters.isoDate(createdAt).replaceAll('-', '')}'
@@ -153,6 +162,9 @@ class SalesController extends ChangeNotifier {
       customerName: customerName,
       customerPhone: customerPhone,
       note: note,
+      pointsUsed: pointsUsed,
+      pointsDiscount: pointsDiscount,
+      pointsEarned: pointsEarned,
     );
   }
 

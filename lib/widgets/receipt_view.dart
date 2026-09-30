@@ -176,6 +176,13 @@ class ReceiptView extends StatelessWidget {
         _totalRow(context, AppStrings.subtotal, sale.subtotal),
         if (sale.safeDiscount > 0)
           _totalRow(context, AppStrings.discount, -sale.safeDiscount),
+        if (sale.pointsDiscount > 0)
+          _totalRow(
+            context,
+            'داشکاندن بە پۆینت (${sale.pointsUsed} پۆینت)',
+            -sale.pointsDiscount,
+            valueColor: const Color(0xFFD97706),
+          ),
         if (sale.taxPercent > 0)
           _totalRow(
             context,
@@ -209,6 +216,39 @@ class ReceiptView extends StatelessWidget {
           )
         else
           _totalRow(context, AppStrings.change, sale.change),
+        if (sale.pointsEarned > 0 || sale.pointsUsed > 0) ...<Widget>[
+          const Divider(height: 12),
+          if (sale.pointsUsed > 0)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Row(
+                children: <Widget>[
+                  const Icon(Icons.star, size: 14, color: Color(0xFFD97706)),
+                  const SizedBox(width: 4),
+                  Text('پۆینتی بەکارهاتوو لەم پسووڵەیە:', style: metaStyle),
+                  const Spacer(),
+                  Text('${sale.pointsUsed} پۆینت',
+                      style: metaStyle.copyWith(fontWeight: FontWeight.bold)),
+                ],
+              ),
+            ),
+          if (sale.pointsEarned > 0)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Row(
+                children: <Widget>[
+                  const Icon(Icons.card_giftcard, size: 14, color: Color(0xFF10B981)),
+                  const SizedBox(width: 4),
+                  Text('پۆینتی بەدەستهاتوو:', style: metaStyle),
+                  const Spacer(),
+                  Text('+${sale.pointsEarned} پۆینت ⭐',
+                      style: metaStyle.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF10B981))),
+                ],
+              ),
+            ),
+        ],
         if (sale.note.trim().isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 8),

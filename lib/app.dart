@@ -8,6 +8,7 @@ import 'screens/login_screen.dart';
 import 'state/app_providers.dart';
 import 'state/auth_controller.dart';
 import 'state/cart_controller.dart';
+import 'state/customer_controller.dart';
 import 'state/inventory_controller.dart';
 import 'state/sales_controller.dart';
 import 'state/settings_controller.dart';
@@ -32,6 +33,9 @@ class PosApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<CartController>.value(value: providers.cart),
         ChangeNotifierProvider<SalesController>.value(value: providers.sales),
+        ChangeNotifierProvider<CustomerController>.value(
+          value: providers.customer,
+        ),
         Provider<AppProviders>.value(value: providers),
       ],
       child: const PosMaterialApp(),

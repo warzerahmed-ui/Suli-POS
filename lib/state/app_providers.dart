@@ -1,4 +1,4 @@
-﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 
 import '../data/demo_data.dart';
 import '../data/local_storage.dart';
@@ -7,11 +7,12 @@ import '../models/product.dart';
 import '../models/sale.dart';
 import 'auth_controller.dart';
 import 'cart_controller.dart';
+import 'customer_controller.dart';
 import 'inventory_controller.dart';
 import 'sales_controller.dart';
 import 'settings_controller.dart';
 
-/// Ú©Û†Ú©Ø±Ø§ÙˆÛ•ÛŒ Ù‡Û•Ù…ÙˆÙˆ Ú©Û†Ù†ØªØ±Û†ÚµÛ•Ø±Û•Ú©Ø§Ù† + Ø¯Ø§Ø¨ÛŒÙ†Ú©Ø±Ø¯Ù†ÛŒ Ø¯Ø§ØªØ§ÛŒ Ø³Û•Ø±Û•ØªØ§ÛŒÛŒ.
+/// کۆکراوەی هەموو کۆنترۆڵەرەکان + دابینکردنی داتای سەرەتایی.
 ///
 /// English: composition root. `bootstrap()` opens the storage, seeds demo data
 /// on the very first run and returns every controller wired together.
@@ -21,7 +22,8 @@ class AppProviders {
         auth = AuthController(repository),
         inventory = InventoryController(repository),
         cart = CartController(repository),
-        sales = SalesController(repository);
+        sales = SalesController(repository),
+        customer = CustomerController(repository);
 
   final PosRepository repository;
   final SettingsController settings;
@@ -29,6 +31,7 @@ class AppProviders {
   final InventoryController inventory;
   final CartController cart;
   final SalesController sales;
+  final CustomerController customer;
 
   static Future<AppProviders> bootstrap() async {
     final LocalStorage storage = await LocalStorage.open();
@@ -49,13 +52,14 @@ class AppProviders {
     inventory.load();
     sales.load();
     cart.load();
+    customer.load();
     cart.setTaxPercent(settings.settings.taxPercent);
   }
 
   void _syncTaxWithSettings() =>
       cart.setTaxPercent(settings.settings.taxPercent);
 
-  /// Ø¨Ø§Ø±Ú©Ø±Ø¯Ù†Û•ÙˆÛ•ÛŒ Ø¯Ø§ØªØ§ÛŒ Ù†Ù…ÙˆÙˆÙ†Û• (Ù„Û• Ú•ÙˆÙˆÚ©Ø§Ø±ÛŒ Ú•ÛŽÚ©Ø®Ø³ØªÙ†Û•Ú©Ø§Ù†Û•ÙˆÛ•).
+  /// بارکردنەوەی داتای نموونە (لە ڕووکاری ڕێکخستنەکانەوە).
   Future<void> loadDemoData() async {
     final List<Product> products = DemoData.products();
     final List<Sale> demoSales = DemoData.sales(products);
@@ -69,12 +73,13 @@ class AppProviders {
     inventory.load();
     sales.load();
     cart.load();
+    customer.load();
     cart.resetAfterSale();
     auth.load();
     settings.load();
   }
 
-  /// Ø³Ú•ÛŒÙ†Û•ÙˆÛ•ÛŒ Ù‡Û•Ù…ÙˆÙˆ Ø¯Ø§ØªØ§ Ùˆ Ú¯Û•Ú•Ø§Ù†Û•ÙˆÛ• Ø¨Û† Ø¯Û†Ø®ÛŒ Ø³Û•Ø±Û•ØªØ§.
+  /// سڕینەوەی هەموو داتا و گەڕانەوە بۆ دۆخی سەرەتا.
   Future<void> resetAll() async {
     await repository.clearEverything();
     await _seed(repository);
@@ -95,7 +100,8 @@ class AppProviders {
     await repository.markSeeded();
   }
 
-  List<Object> _notifiers() => <Object>[settings, auth, inventory, cart, sales];
+  List<Object> _notifiers() =>
+      <Object>[settings, auth, inventory, cart, sales, customer];
 
   void dispose() {
     for (final Object notifier in _notifiers()) {

@@ -10,6 +10,9 @@ class StoreSettings {
     this.taxPercent = 0,
     this.receiptFooter = 'سوپاس بۆ کڕینەکەت',
     this.isDarkMode = false,
+    this.pointsEnabled = true,
+    this.pointsPerAmount = 1000,
+    this.amountPerPoint = 10,
   });
 
   final String storeName;
@@ -23,6 +26,15 @@ class StoreSettings {
   final String receiptFooter;
   final bool isDarkMode;
 
+  /// سیستەمی پۆینتی کڕیاران
+  final bool pointsEnabled;
+
+  /// بۆ هەر چەند دینار کڕین ١ پۆینت هەژمار بکرێت (default: 1000 د.ع)
+  final double pointsPerAmount;
+
+  /// بەهای هەر ١ پۆینت لە کاتی بەکارهێنان بۆ کڕین (default: 10 د.ع)
+  final double amountPerPoint;
+
   StoreSettings copyWith({
     String? storeName,
     String? phone,
@@ -32,6 +44,9 @@ class StoreSettings {
     double? taxPercent,
     String? receiptFooter,
     bool? isDarkMode,
+    bool? pointsEnabled,
+    double? pointsPerAmount,
+    double? amountPerPoint,
   }) {
     return StoreSettings(
       storeName: storeName ?? this.storeName,
@@ -42,6 +57,9 @@ class StoreSettings {
       taxPercent: taxPercent ?? this.taxPercent,
       receiptFooter: receiptFooter ?? this.receiptFooter,
       isDarkMode: isDarkMode ?? this.isDarkMode,
+      pointsEnabled: pointsEnabled ?? this.pointsEnabled,
+      pointsPerAmount: pointsPerAmount ?? this.pointsPerAmount,
+      amountPerPoint: amountPerPoint ?? this.amountPerPoint,
     );
   }
 
@@ -54,6 +72,9 @@ class StoreSettings {
         'taxPercent': taxPercent,
         'receiptFooter': receiptFooter,
         'isDarkMode': isDarkMode,
+        'pointsEnabled': pointsEnabled,
+        'pointsPerAmount': pointsPerAmount,
+        'amountPerPoint': amountPerPoint,
       };
 
   factory StoreSettings.fromJson(Map<String, dynamic> json) => StoreSettings(
@@ -65,5 +86,9 @@ class StoreSettings {
         taxPercent: (json['taxPercent'] as num?)?.toDouble() ?? 0,
         receiptFooter: json['receiptFooter'] as String? ?? '',
         isDarkMode: json['isDarkMode'] as bool? ?? false,
+        pointsEnabled: json['pointsEnabled'] as bool? ?? true,
+        pointsPerAmount: (json['pointsPerAmount'] as num?)?.toDouble() ?? 1000,
+        amountPerPoint: (json['amountPerPoint'] as num?)?.toDouble() ?? 10,
       );
 }
+

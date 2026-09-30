@@ -18,6 +18,7 @@ class LocalStorage {
   static const String salesKey = 'pos.sales';
   static const String usersKey = 'pos.users';
   static const String settingsKey = 'pos.settings';
+  static const String customersKey = 'pos.customers';
   static const String heldCartsKey = 'pos.heldCarts';
   static const String invoiceCounterKey = 'pos.invoiceCounter';
   static const String seededKey = 'pos.seeded';

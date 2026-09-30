@@ -1,8 +1,9 @@
-﻿import 'dart:async';
+import 'dart:async';
 import 'package:flutter/foundation.dart' hide Category;
 
 import '../models/app_user.dart';
 import '../models/category.dart';
+import '../models/customer.dart';
 import '../models/held_cart.dart';
 import '../models/product.dart';
 import '../models/sale.dart';
@@ -34,6 +35,7 @@ class PosRepository {
   static const String _keyCategoriesVer = 'sync.categoriesVersion';
   static const String _keyUsersVer = 'sync.usersVersion';
   static const String _keySettingsVer = 'sync.settingsVersion';
+  static const String _keyCustomersVer = 'sync.customersVersion';
   static const String _keySalesCount = 'sync.salesCount';
   static const String _keyOfflineQueue = 'pos.offline_queue';
 
@@ -154,6 +156,7 @@ class PosRepository {
         categoriesVersion: now,
         usersVersion: now,
         settingsVersion: now,
+        customersVersion: now,
         salesCount: loadSales().length,
       );
     }
@@ -199,6 +202,9 @@ class PosRepository {
       final String localSettVer = _storage.readString(_keySettingsVer) ?? '';
       final String remoteSettVer =
           remoteSync['settingsVersion']?.toString() ?? '';
+      final String localCustVer = _storage.readString(_keyCustomersVer) ?? '';
+      final String remoteCustVer =
+          remoteSync['customersVersion']?.toString() ?? '';
       final int localSalesCount = _storage.readInt(_keySalesCount);
       final int remoteSalesCount =
           (remoteSync['salesCount'] as num?)?.toInt() ?? 0;
@@ -261,6 +267,22 @@ class PosRepository {
       }
 
       if (!hasLocalData ||
+          localCustVer != remoteCustVer ||
+          loadCustomers().isEmpty) {
+        final List<Map<String, dynamic>> custs =
+            await _firestore.getCollection('customers');
+        if (custs.isNotEmpty) {
+          final List<Customer> list =
+              custs.map(Customer.fromJson).toList(growable: false);
+          await _storage.writeList(
+            LocalStorage.customersKey,
+            list.map((Customer c) => c.toJson()).toList(),
+          );
+          await _storage.writeString(_keyCustomersVer, remoteCustVer);
+        }
+      }
+
+      if (!hasLocalData ||
           localSalesCount != remoteSalesCount ||
           loadSales().isEmpty) {
         final List<Map<String, dynamic>> sales =
@@ -305,6 +327,8 @@ class PosRepository {
           await _firestore.getCollection('sales');
       final List<Map<String, dynamic>> users =
           await _firestore.getCollection('users');
+      final List<Map<String, dynamic>> customers =
+          await _firestore.getCollection('customers');
       final Map<String, dynamic>? settings =
           await _firestore.getDocument('settings', 'store');
       final Map<String, dynamic>? seq =
@@ -334,6 +358,12 @@ class PosRepository {
         await _storage.writeList(
             LocalStorage.usersKey, list.map((u) => u.toJson()).toList());
       }
+      if (customers.isNotEmpty) {
+        final List<Customer> list =
+            customers.map(Customer.fromJson).toList(growable: false);
+        await _storage.writeList(
+            LocalStorage.customersKey, list.map((c) => c.toJson()).toList());
+      }
       if (settings != null) {
         await _storage.writeMap(LocalStorage.settingsKey, settings);
       }
@@ -348,6 +378,7 @@ class PosRepository {
         categoriesVersion: now,
         usersVersion: now,
         settingsVersion: now,
+        customersVersion: now,
         salesCount: sales.length,
       );
       await _storage.writeBool(LocalStorage.seededKey, true);
@@ -708,6 +739,94 @@ class PosRepository {
     }
   }
 
+  // ── کڕیاران و پۆینتەکان ──────────────────────────────────────────────────
+  List<Customer> loadCustomers() => _storage
+      .readList(LocalStorage.customersKey)
+      .map(Customer.fromJson)
+      .toList(growable: false);
+
+  Future<void> saveSingleCustomer(Customer customer) async {
+    final List<Customer> custs = loadCustomers();
+    final int index = custs.indexWhere((Customer c) => c.id == customer.id);
+    final List<Customer> updated = List<Customer>.from(custs);
+    if (index < 0) {
+      updated.add(customer);
+    } else {
+      updated[index] = customer;
+    }
+    await _storage.writeList(
+      LocalStorage.customersKey,
+      updated.map((Customer c) => c.toJson()).toList(),
+    );
+
+    try {
+      final bool ok = await _firestore.setDocument(
+          'customers', customer.id, customer.toJson());
+      if (ok) {
+        isOnlineNotifier.value = true;
+        final String ver = DateTime.now().millisecondsSinceEpoch.toString();
+        await _storage.writeString(_keyCustomersVer, ver);
+        _touchSyncMetadata(customersVersion: ver);
+      } else {
+        _enqueueOfflineAction(
+          action: 'set',
+          collection: 'customers',
+          documentId: customer.id,
+          data: customer.toJson(),
+        );
+      }
+    } catch (_) {
+      _enqueueOfflineAction(
+        action: 'set',
+        collection: 'customers',
+        documentId: customer.id,
+        data: customer.toJson(),
+      );
+    }
+  }
+
+  Future<void> deleteSingleCustomer(String id) async {
+    final List<Customer> custs = loadCustomers();
+    final List<Customer> updated =
+        custs.where((Customer c) => c.id != id).toList();
+    await _storage.writeList(
+      LocalStorage.customersKey,
+      updated.map((Customer c) => c.toJson()).toList(),
+    );
+
+    try {
+      final bool ok = await _firestore.deleteDocument('customers', id);
+      if (ok) {
+        isOnlineNotifier.value = true;
+        final String ver = DateTime.now().millisecondsSinceEpoch.toString();
+        await _storage.writeString(_keyCustomersVer, ver);
+        _touchSyncMetadata(customersVersion: ver);
+      } else {
+        _enqueueOfflineAction(
+          action: 'delete',
+          collection: 'customers',
+          documentId: id,
+        );
+      }
+    } catch (_) {
+      _enqueueOfflineAction(
+        action: 'delete',
+        collection: 'customers',
+        documentId: id,
+      );
+    }
+  }
+
+  Future<void> saveCustomers(List<Customer> customers) async {
+    await _storage.writeList(
+      LocalStorage.customersKey,
+      customers.map((Customer customer) => customer.toJson()).toList(),
+    );
+    for (final Customer c in customers) {
+      saveSingleCustomer(c);
+    }
+  }
+
   // ── سەبەتە هەڵواسراوەکان ────────────────────────────────────────────────
   List<HeldCart> loadHeldCarts() => _storage
       .readList(LocalStorage.heldCartsKey)
@@ -812,6 +931,7 @@ class PosRepository {
     final List<Category> cats = loadCategories();
     final List<Sale> sales = loadSales();
     final List<AppUser> users = loadUsers();
+    final List<Customer> customers = loadCustomers();
 
     await _storage.clearAll();
 
@@ -827,6 +947,9 @@ class PosRepository {
       }
       for (final AppUser u in users) {
         _firestore.deleteDocument('users', u.id);
+      }
+      for (final Customer cust in customers) {
+        _firestore.deleteDocument('customers', cust.id);
       }
       _firestore.deleteDocument('settings', 'store');
       _firestore.deleteDocument('sequences', 'invoices');
@@ -857,6 +980,7 @@ class PosRepository {
       categoriesVersion: now,
       usersVersion: now,
       settingsVersion: now,
+      customersVersion: now,
       salesCount: sales.length,
     );
     await markSeeded();
@@ -867,6 +991,7 @@ class PosRepository {
     String? categoriesVersion,
     String? usersVersion,
     String? settingsVersion,
+    String? customersVersion,
     int? salesCount,
   }) async {
     try {
@@ -875,6 +1000,7 @@ class PosRepository {
       if (categoriesVersion != null) update['categoriesVersion'] = categoriesVersion;
       if (usersVersion != null) update['usersVersion'] = usersVersion;
       if (settingsVersion != null) update['settingsVersion'] = settingsVersion;
+      if (customersVersion != null) update['customersVersion'] = customersVersion;
       if (salesCount != null) update['salesCount'] = salesCount;
       update['lastSyncAt'] = DateTime.now().toIso8601String();
 

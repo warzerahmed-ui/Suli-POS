@@ -137,6 +137,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // 9. Customers & Loyalty Points
+    match /customers/{customerId} {
+      allow read, write: if true;
+    }
+
     // -----------------------------------------------------------
     // Default Deny: Protect all unspecified paths
     // -----------------------------------------------------------
