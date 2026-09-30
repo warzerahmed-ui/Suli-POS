@@ -1,4 +1,5 @@
-﻿import 'package:flutter/foundation.dart' hide Category;
+﻿import 'dart:async';
+import 'package:flutter/foundation.dart' hide Category;
 
 import '../models/app_user.dart';
 import '../models/category.dart';
@@ -10,14 +11,17 @@ import 'demo_data.dart';
 import 'firestore_service.dart';
 import 'local_storage.dart';
 
-/// ڕیپۆزیتۆری سەرەکی سیستەم — پاشەکەوتکردن بە کەمترین Read و Write لەگەڵ Firebase Firestore.
-/// Optimized Firebase Firestore POS Repository:
-/// - Delta Sync / Version Hashing (Drops startup reads from thousands to 1 Read!)
-/// - Single-Document Writes (Drops checkout writes by 99.8%: only writes new sale + changed stocks)
-/// - Zero redundant reads across all UI navigation screens.
+/// ڕیپۆزیتۆری سەرەکی سیستەم — کارکردنی ئۆفلاینی تەواو (Offline-First Architecture).
+/// لەکاتی نەبوونی ئینتەرنێت بەهیچ جۆرێک کار ناوەستێت:
+/// ١. هەموو فرۆشتن و دەستکارییەک دەستبەجێ لە لۆکاڵ تۆمار دەکرێت.
+/// ٢. ئەگەر ئینتەرنێت نەبوو، دەخرێتە ناو (Offline Sync Queue).
+/// ٣. لەگەڵ پەیدابوونەوەی ئینتەرنێت، خۆکارانە (Auto-Sync) هەمووی دەنێرێتە سەر فایەربەیس.
 class PosRepository {
   PosRepository(this._storage, [FirestoreService? firestore])
-      : _firestore = firestore ?? FirestoreService();
+      : _firestore = firestore ?? FirestoreService() {
+    _initPendingCount();
+    _startAutoSyncTimer();
+  }
 
   final LocalStorage _storage;
   final FirestoreService _firestore;
@@ -31,32 +35,159 @@ class PosRepository {
   static const String _keyUsersVer = 'sync.usersVersion';
   static const String _keySettingsVer = 'sync.settingsVersion';
   static const String _keySalesCount = 'sync.salesCount';
+  static const String _keyOfflineQueue = 'pos.offline_queue';
 
-  /// دەستپێکردن و هاوکاتکردنی زیرەکانە بە کەمترین Read
+  /// نیشاندەری دۆخی پەیوەندی بە فایەربەیس
+  final ValueNotifier<bool> isOnlineNotifier = ValueNotifier<bool>(true);
+
+  /// ژمارەی ئەو مامەڵانەی لە ئۆفلایندا ئەنجامدراون و چاوەڕێی ناردنن بۆ فایەربەیس
+  final ValueNotifier<int> pendingSyncCountNotifier = ValueNotifier<int>(0);
+
+  Timer? _autoSyncTimer;
+
+  void _initPendingCount() {
+    final List<Map<String, dynamic>> queue =
+        _storage.readList(_keyOfflineQueue);
+    pendingSyncCountNotifier.value = queue.length;
+    if (queue.isNotEmpty) {
+      isOnlineNotifier.value = false;
+    }
+  }
+
+  void _startAutoSyncTimer() {
+    _autoSyncTimer?.cancel();
+    // پشکنینی خۆکارانە هەموو ٢٠ چرکە جارێک بۆ ناردنی داتا ئۆفلاینەکان
+    _autoSyncTimer = Timer.periodic(const Duration(seconds: 20), (_) {
+      if (pendingSyncCountNotifier.value > 0) {
+        syncPendingQueue();
+      }
+    });
+  }
+
+  void dispose() {
+    _autoSyncTimer?.cancel();
+    isOnlineNotifier.dispose();
+    pendingSyncCountNotifier.dispose();
+  }
+
+  // ── Offline Queue Management ──────────────────────────────────────────────
+
+  void _enqueueOfflineAction({
+    required String action,
+    required String collection,
+    required String documentId,
+    Map<String, dynamic>? data,
+  }) {
+    final List<Map<String, dynamic>> queue =
+        _storage.readList(_keyOfflineQueue);
+    final Map<String, dynamic> item = <String, dynamic>{
+      'id': 'act-${DateTime.now().microsecondsSinceEpoch}',
+      'action': action,
+      'collection': collection,
+      'documentId': documentId,
+      'data': data,
+      'timestamp': DateTime.now().toIso8601String(),
+    };
+
+    final int existingIndex = queue.indexWhere(
+      (Map<String, dynamic> q) =>
+          q['collection'] == collection && q['documentId'] == documentId,
+    );
+    if (existingIndex >= 0) {
+      queue[existingIndex] = item;
+    } else {
+      queue.add(item);
+    }
+
+    _storage.writeList(_keyOfflineQueue, queue);
+    pendingSyncCountNotifier.value = queue.length;
+    isOnlineNotifier.value = false;
+  }
+
+  /// ناردنی هەموو داتاکانی ڕیزبەندی ئۆفلاین بۆ فایەربەیس (Sync Flush)
+  Future<int> syncPendingQueue() async {
+    final List<Map<String, dynamic>> queue =
+        _storage.readList(_keyOfflineQueue);
+    if (queue.isEmpty) {
+      pendingSyncCountNotifier.value = 0;
+      isOnlineNotifier.value = true;
+      return 0;
+    }
+
+    int syncedCount = 0;
+    final List<Map<String, dynamic>> remaining = <Map<String, dynamic>>[];
+
+    for (final Map<String, dynamic> item in queue) {
+      final String action = item['action'] as String? ?? 'set';
+      final String collection = item['collection'] as String? ?? '';
+      final String docId = item['documentId'] as String? ?? '';
+      final dynamic dataRaw = item['data'];
+      final Map<String, dynamic>? data =
+          dataRaw is Map ? Map<String, dynamic>.from(dataRaw) : null;
+
+      bool success = false;
+      try {
+        if (action == 'delete') {
+          success = await _firestore.deleteDocument(collection, docId);
+        } else if (data != null) {
+          success = await _firestore.setDocument(collection, docId, data);
+        }
+      } catch (e) {
+        success = false;
+      }
+
+      if (success) {
+        syncedCount++;
+      } else {
+        remaining.add(item);
+      }
+    }
+
+    await _storage.writeList(_keyOfflineQueue, remaining);
+    pendingSyncCountNotifier.value = remaining.length;
+    isOnlineNotifier.value = remaining.isEmpty;
+
+    if (syncedCount > 0) {
+      final String now = DateTime.now().millisecondsSinceEpoch.toString();
+      _touchSyncMetadata(
+        productsVersion: now,
+        categoriesVersion: now,
+        usersVersion: now,
+        settingsVersion: now,
+        salesCount: loadSales().length,
+      );
+    }
+
+    return syncedCount;
+  }
+
+  // ── دەستپێکردن و هاوکاتکردنی داتاکان لەگەڵ فایەربەیس ─────────────────────
   Future<void> initialize() async {
     try {
       final bool hasLocalData =
           loadUsers().isNotEmpty && loadProducts().isNotEmpty;
 
-      // ١. هێنانی تەنها یەک دۆکیۆمێنتی مێتاداتا (تێچوو: تەنها ١ Read بۆ تەواوی سیستەم!)
       final Map<String, dynamic>? remoteSync =
           await _firestore.getDocument(_syncCollection, _syncDoc);
 
       if (remoteSync == null) {
-        final List<Map<String, dynamic>> remoteUsers =
-            await _firestore.getCollection('users');
-        final List<Map<String, dynamic>> remoteProds =
-            await _firestore.getCollection('products');
+        if (!hasLocalData) {
+          final List<Map<String, dynamic>> remoteUsers =
+              await _firestore.getCollection('users');
+          final List<Map<String, dynamic>> remoteProds =
+              await _firestore.getCollection('products');
 
-        if (remoteUsers.isEmpty && remoteProds.isEmpty) {
-          await _seedToFirestore();
-        } else {
-          await _fullFetchFromFirestore();
+          if (remoteUsers.isEmpty && remoteProds.isEmpty) {
+            await _seedToFirestore();
+          } else {
+            await _fullFetchFromFirestore();
+          }
         }
         return;
       }
 
-      // ٢. بەراوردکردنی وەشانەکانی لۆکاڵ لەگەڵ فایەربەیس
+      isOnlineNotifier.value = true;
+
       final String localProdVer = _storage.readString(_keyProductsVer) ?? '';
       final String remoteProdVer =
           remoteSync['productsVersion']?.toString() ?? '';
@@ -72,7 +203,6 @@ class PosRepository {
       final int remoteSalesCount =
           (remoteSync['salesCount'] as num?)?.toInt() ?? 0;
 
-      // ئەگەر وەشانەکان وەک یەک بن، پێویست بە هیچ خوێندنەوەیەکی فایەربەیس ناکات (0 Reads!)
       if (!hasLocalData ||
           localProdVer != remoteProdVer ||
           loadProducts().isEmpty) {
@@ -154,75 +284,86 @@ class PosRepository {
       }
 
       await _storage.writeBool(LocalStorage.seededKey, true);
+
+      // ئەگەر داتای ئۆفلاین لە پێشتر مابێت، یەکسەر دەینێرێت
+      if (pendingSyncCountNotifier.value > 0) {
+        await syncPendingQueue();
+      }
     } catch (e) {
-      debugPrint('PosRepository.initialize error: $e');
+      debugPrint('PosRepository.initialize offline mode active: $e');
+      isOnlineNotifier.value = false;
     }
   }
 
   Future<void> _fullFetchFromFirestore() async {
-    final List<Map<String, dynamic>> cats =
-        await _firestore.getCollection('categories');
-    final List<Map<String, dynamic>> prods =
-        await _firestore.getCollection('products');
-    final List<Map<String, dynamic>> sales =
-        await _firestore.getCollection('sales');
-    final List<Map<String, dynamic>> users =
-        await _firestore.getCollection('users');
-    final Map<String, dynamic>? settings =
-        await _firestore.getDocument('settings', 'store');
-    final Map<String, dynamic>? seq =
-        await _firestore.getDocument('sequences', 'invoices');
+    try {
+      final List<Map<String, dynamic>> cats =
+          await _firestore.getCollection('categories');
+      final List<Map<String, dynamic>> prods =
+          await _firestore.getCollection('products');
+      final List<Map<String, dynamic>> sales =
+          await _firestore.getCollection('sales');
+      final List<Map<String, dynamic>> users =
+          await _firestore.getCollection('users');
+      final Map<String, dynamic>? settings =
+          await _firestore.getDocument('settings', 'store');
+      final Map<String, dynamic>? seq =
+          await _firestore.getDocument('sequences', 'invoices');
 
-    if (cats.isNotEmpty) {
-      final List<Category> list =
-          cats.map(Category.fromJson).toList(growable: false);
-      await _storage.writeList(
-          LocalStorage.categoriesKey, list.map((c) => c.toJson()).toList());
-    }
-    if (prods.isNotEmpty) {
-      final List<Product> list =
-          prods.map(Product.fromJson).toList(growable: false);
-      await _storage.writeList(
-          LocalStorage.productsKey, list.map((p) => p.toJson()).toList());
-    }
-    if (sales.isNotEmpty) {
-      final List<Sale> list =
-          sales.map(Sale.fromJson).toList(growable: false);
-      await _storage.writeList(
-          LocalStorage.salesKey, list.map((s) => s.toJson()).toList());
-    }
-    if (users.isNotEmpty) {
-      final List<AppUser> list =
-          users.map(AppUser.fromJson).toList(growable: false);
-      await _storage.writeList(
-          LocalStorage.usersKey, list.map((u) => u.toJson()).toList());
-    }
-    if (settings != null) {
-      await _storage.writeMap(LocalStorage.settingsKey, settings);
-    }
-    if (seq != null && seq.containsKey('counter')) {
-      final int count = (seq['counter'] as num?)?.toInt() ?? 0;
-      await _storage.writeInt(LocalStorage.invoiceCounterKey, count);
-    }
+      if (cats.isNotEmpty) {
+        final List<Category> list =
+            cats.map(Category.fromJson).toList(growable: false);
+        await _storage.writeList(
+            LocalStorage.categoriesKey, list.map((c) => c.toJson()).toList());
+      }
+      if (prods.isNotEmpty) {
+        final List<Product> list =
+            prods.map(Product.fromJson).toList(growable: false);
+        await _storage.writeList(
+            LocalStorage.productsKey, list.map((p) => p.toJson()).toList());
+      }
+      if (sales.isNotEmpty) {
+        final List<Sale> list =
+            sales.map(Sale.fromJson).toList(growable: false);
+        await _storage.writeList(
+            LocalStorage.salesKey, list.map((s) => s.toJson()).toList());
+      }
+      if (users.isNotEmpty) {
+        final List<AppUser> list =
+            users.map(AppUser.fromJson).toList(growable: false);
+        await _storage.writeList(
+            LocalStorage.usersKey, list.map((u) => u.toJson()).toList());
+      }
+      if (settings != null) {
+        await _storage.writeMap(LocalStorage.settingsKey, settings);
+      }
+      if (seq != null && seq.containsKey('counter')) {
+        final int count = (seq['counter'] as num?)?.toInt() ?? 0;
+        await _storage.writeInt(LocalStorage.invoiceCounterKey, count);
+      }
 
-    final String now = DateTime.now().millisecondsSinceEpoch.toString();
-    await _touchSyncMetadata(
-      productsVersion: now,
-      categoriesVersion: now,
-      usersVersion: now,
-      settingsVersion: now,
-      salesCount: sales.length,
-    );
-    await _storage.writeBool(LocalStorage.seededKey, true);
+      final String now = DateTime.now().millisecondsSinceEpoch.toString();
+      await _touchSyncMetadata(
+        productsVersion: now,
+        categoriesVersion: now,
+        usersVersion: now,
+        settingsVersion: now,
+        salesCount: sales.length,
+      );
+      await _storage.writeBool(LocalStorage.seededKey, true);
+      isOnlineNotifier.value = true;
+    } catch (e) {
+      debugPrint('PosRepository._fullFetchFromFirestore error: $e');
+      isOnlineNotifier.value = false;
+    }
   }
 
-  // ── کاڵاکان (تەنها ١ Write بۆ زیادکردن/دەستکاری) ─────────────────────────
+  // ── کاڵاکان ─────────────────────────────────────────────────────────────
   List<Product> loadProducts() => _storage
       .readList(LocalStorage.productsKey)
       .map(Product.fromJson)
       .toList(growable: false);
 
-  /// پاشەکەوتکردنی تەنها ئەو ١ کاڵایەی دەستکاری کراوە (1 Write لەبری N Writes)
   Future<void> saveSingleProduct(Product product) async {
     final List<Product> prods = loadProducts();
     final int index = prods.indexWhere((Product p) => p.id == product.id);
@@ -232,22 +373,36 @@ class PosRepository {
     } else {
       updated[index] = product;
     }
+    // هەردەم لۆکاڵ سەرەتا نوێ دەبێتەوە
     await _storage.writeList(
       LocalStorage.productsKey,
       updated.map((Product p) => p.toJson()).toList(),
     );
 
     try {
-      await _firestore.setDocument('products', product.id, product.toJson());
-      final String ver = DateTime.now().millisecondsSinceEpoch.toString();
-      await _storage.writeString(_keyProductsVer, ver);
-      _touchSyncMetadata(productsVersion: ver);
-    } catch (e) {
-      debugPrint('Firestore saveSingleProduct error: $e');
+      final bool ok = await _firestore.setDocument(
+          'products', product.id, product.toJson());
+      if (ok) {
+        isOnlineNotifier.value = true;
+        final String ver = DateTime.now().millisecondsSinceEpoch.toString();
+        await _storage.writeString(_keyProductsVer, ver);
+        _touchSyncMetadata(productsVersion: ver);
+      } else {
+        _enqueueOfflineAction(
+            action: 'set',
+            collection: 'products',
+            documentId: product.id,
+            data: product.toJson());
+      }
+    } catch (_) {
+      _enqueueOfflineAction(
+          action: 'set',
+          collection: 'products',
+          documentId: product.id,
+          data: product.toJson());
     }
   }
 
-  /// سڕینەوەی تەنها ئەو ١ کاڵایە (1 Delete)
   Future<void> deleteSingleProduct(String id) async {
     final List<Product> prods = loadProducts();
     final List<Product> updated =
@@ -258,16 +413,22 @@ class PosRepository {
     );
 
     try {
-      await _firestore.deleteDocument('products', id);
-      final String ver = DateTime.now().millisecondsSinceEpoch.toString();
-      await _storage.writeString(_keyProductsVer, ver);
-      _touchSyncMetadata(productsVersion: ver);
-    } catch (e) {
-      debugPrint('Firestore deleteSingleProduct error: $e');
+      final bool ok = await _firestore.deleteDocument('products', id);
+      if (ok) {
+        isOnlineNotifier.value = true;
+        final String ver = DateTime.now().millisecondsSinceEpoch.toString();
+        await _storage.writeString(_keyProductsVer, ver);
+        _touchSyncMetadata(productsVersion: ver);
+      } else {
+        _enqueueOfflineAction(
+            action: 'delete', collection: 'products', documentId: id);
+      }
+    } catch (_) {
+      _enqueueOfflineAction(
+          action: 'delete', collection: 'products', documentId: id);
     }
   }
 
-  /// نوێکردنەوەی بڕی کۆگای تەنها ئەو کاڵایانەی فرۆشراون (K Writes تەنها)
   Future<void> updateProductsStock(Map<String, double> newStocks) async {
     if (newStocks.isEmpty) return;
     final List<Product> prods = loadProducts();
@@ -289,12 +450,24 @@ class PosRepository {
       updatedList.map((Product p) => p.toJson()).toList(),
     );
 
-    try {
-      for (final Product p in changedProds) {
-        _firestore.setDocument('products', p.id, p.toJson());
+    for (final Product p in changedProds) {
+      try {
+        final bool ok =
+            await _firestore.setDocument('products', p.id, p.toJson());
+        if (!ok) {
+          _enqueueOfflineAction(
+              action: 'set',
+              collection: 'products',
+              documentId: p.id,
+              data: p.toJson());
+        }
+      } catch (_) {
+        _enqueueOfflineAction(
+            action: 'set',
+            collection: 'products',
+            documentId: p.id,
+            data: p.toJson());
       }
-    } catch (e) {
-      debugPrint('Firestore updateProductsStock error: $e');
     }
   }
 
@@ -311,22 +484,15 @@ class PosRepository {
       products.map((Product product) => product.toJson()).toList(),
     );
 
-    try {
-      for (final String id in deletedIds) {
-        _firestore.deleteDocument('products', id);
-      }
-      final List<Map<String, dynamic>> items =
-          products.map((Product p) => p.toJson()).toList();
-      await _firestore.saveBatch('products', items);
-      final String ver = DateTime.now().millisecondsSinceEpoch.toString();
-      await _storage.writeString(_keyProductsVer, ver);
-      _touchSyncMetadata(productsVersion: ver);
-    } catch (e) {
-      debugPrint('Firestore saveProducts error: $e');
+    for (final String id in deletedIds) {
+      deleteSingleProduct(id);
+    }
+    for (final Product p in products) {
+      saveSingleProduct(p);
     }
   }
 
-  // ── پۆلەکان (تەنها ١ Write بۆ زیادکردن/دەستکاری) ─────────────────────────
+  // ── پۆلەکان ─────────────────────────────────────────────────────────────
   List<Category> loadCategories() => _storage
       .readList(LocalStorage.categoriesKey)
       .map(Category.fromJson)
@@ -347,12 +513,26 @@ class PosRepository {
     );
 
     try {
-      await _firestore.setDocument('categories', category.id, category.toJson());
-      final String ver = DateTime.now().millisecondsSinceEpoch.toString();
-      await _storage.writeString(_keyCategoriesVer, ver);
-      _touchSyncMetadata(categoriesVersion: ver);
-    } catch (e) {
-      debugPrint('Firestore saveSingleCategory error: $e');
+      final bool ok = await _firestore.setDocument(
+          'categories', category.id, category.toJson());
+      if (ok) {
+        isOnlineNotifier.value = true;
+        final String ver = DateTime.now().millisecondsSinceEpoch.toString();
+        await _storage.writeString(_keyCategoriesVer, ver);
+        _touchSyncMetadata(categoriesVersion: ver);
+      } else {
+        _enqueueOfflineAction(
+            action: 'set',
+            collection: 'categories',
+            documentId: category.id,
+            data: category.toJson());
+      }
+    } catch (_) {
+      _enqueueOfflineAction(
+          action: 'set',
+          collection: 'categories',
+          documentId: category.id,
+          data: category.toJson());
     }
   }
 
@@ -366,50 +546,39 @@ class PosRepository {
     );
 
     try {
-      await _firestore.deleteDocument('categories', id);
-      final String ver = DateTime.now().millisecondsSinceEpoch.toString();
-      await _storage.writeString(_keyCategoriesVer, ver);
-      _touchSyncMetadata(categoriesVersion: ver);
-    } catch (e) {
-      debugPrint('Firestore deleteSingleCategory error: $e');
+      final bool ok = await _firestore.deleteDocument('categories', id);
+      if (ok) {
+        isOnlineNotifier.value = true;
+        final String ver = DateTime.now().millisecondsSinceEpoch.toString();
+        await _storage.writeString(_keyCategoriesVer, ver);
+        _touchSyncMetadata(categoriesVersion: ver);
+      } else {
+        _enqueueOfflineAction(
+            action: 'delete', collection: 'categories', documentId: id);
+      }
+    } catch (_) {
+      _enqueueOfflineAction(
+          action: 'delete', collection: 'categories', documentId: id);
     }
   }
 
   Future<void> saveCategories(List<Category> categories) async {
-    final List<Category> oldCategories = loadCategories();
-    final Set<String> newIds = categories.map((Category c) => c.id).toSet();
-    final List<String> deletedIds = oldCategories
-        .where((Category c) => !newIds.contains(c.id))
-        .map((Category c) => c.id)
-        .toList();
-
     await _storage.writeList(
       LocalStorage.categoriesKey,
       categories.map((Category category) => category.toJson()).toList(),
     );
-
-    try {
-      for (final String id in deletedIds) {
-        _firestore.deleteDocument('categories', id);
-      }
-      final List<Map<String, dynamic>> items =
-          categories.map((Category c) => c.toJson()).toList();
-      await _firestore.saveBatch('categories', items);
-      final String ver = DateTime.now().millisecondsSinceEpoch.toString();
-      await _storage.writeString(_keyCategoriesVer, ver);
-      _touchSyncMetadata(categoriesVersion: ver);
-    } catch (e) {
-      debugPrint('Firestore saveCategories error: $e');
+    for (final Category c in categories) {
+      saveSingleCategory(c);
     }
   }
 
-  // ── پسووڵەکان (تەنها ١ Write بۆ هەر فرۆشتنێک) ───────────────────────────
+  // ── پسووڵەکان (کارکردنی ١٠٠٪ تەواوی فرۆشتن لە ئۆفلاین) ─────────────────────
   List<Sale> loadSales() => _storage
       .readList(LocalStorage.salesKey)
       .map(Sale.fromJson)
       .toList(growable: false);
 
-  /// پاشەکەوتکردنی ١ پسووڵە (1 Write لەبری هەزاران Write)
+  /// پاشەکەوتکردنی ١ پسووڵە — دەستبەجێ چاپ دەکرێت و تەواو دەبێت لە ئۆفلاین
   Future<void> saveSingleSale(Sale sale) async {
     final List<Sale> sales = loadSales();
     final int index = sales.indexWhere((Sale s) => s.id == sale.id);
@@ -419,18 +588,33 @@ class PosRepository {
     } else {
       updated[index] = sale;
     }
+    // هەردەم لە مەمۆری و لۆکاڵ دەستبەجێ پاشەکەوت دەبێت (سفر چرکە چاوەڕوانی بۆ کاشێر)
     await _storage.writeList(
       LocalStorage.salesKey,
       updated.map((Sale s) => s.toJson()).toList(),
     );
 
     try {
-      await _firestore.setDocument('sales', sale.id, sale.toJson());
-      final int count = updated.length;
-      await _storage.writeInt(_keySalesCount, count);
-      _touchSyncMetadata(salesCount: count);
-    } catch (e) {
-      debugPrint('Firestore saveSingleSale error: $e');
+      final bool ok =
+          await _firestore.setDocument('sales', sale.id, sale.toJson());
+      if (ok) {
+        isOnlineNotifier.value = true;
+        final int count = updated.length;
+        await _storage.writeInt(_keySalesCount, count);
+        _touchSyncMetadata(salesCount: count);
+      } else {
+        _enqueueOfflineAction(
+            action: 'set',
+            collection: 'sales',
+            documentId: sale.id,
+            data: sale.toJson());
+      }
+    } catch (_) {
+      _enqueueOfflineAction(
+          action: 'set',
+          collection: 'sales',
+          documentId: sale.id,
+          data: sale.toJson());
     }
   }
 
@@ -439,19 +623,12 @@ class PosRepository {
       LocalStorage.salesKey,
       sales.map((Sale sale) => sale.toJson()).toList(),
     );
-
-    try {
-      final List<Map<String, dynamic>> items =
-          sales.map((Sale s) => s.toJson()).toList();
-      await _firestore.saveBatch('sales', items);
-      await _storage.writeInt(_keySalesCount, sales.length);
-      _touchSyncMetadata(salesCount: sales.length);
-    } catch (e) {
-      debugPrint('Firestore saveSales error: $e');
+    for (final Sale s in sales) {
+      saveSingleSale(s);
     }
   }
 
-  // ── بەکارهێنەران (تەنها ١ Write بۆ هەر بەکارهێنەرێک) ─────────────────────
+  // ── بەکارهێنەران ────────────────────────────────────────────────────────
   List<AppUser> loadUsers() => _storage
       .readList(LocalStorage.usersKey)
       .map(AppUser.fromJson)
@@ -472,12 +649,26 @@ class PosRepository {
     );
 
     try {
-      await _firestore.setDocument('users', user.id, user.toJson());
-      final String ver = DateTime.now().millisecondsSinceEpoch.toString();
-      await _storage.writeString(_keyUsersVer, ver);
-      _touchSyncMetadata(usersVersion: ver);
-    } catch (e) {
-      debugPrint('Firestore saveSingleUser error: $e');
+      final bool ok =
+          await _firestore.setDocument('users', user.id, user.toJson());
+      if (ok) {
+        isOnlineNotifier.value = true;
+        final String ver = DateTime.now().millisecondsSinceEpoch.toString();
+        await _storage.writeString(_keyUsersVer, ver);
+        _touchSyncMetadata(usersVersion: ver);
+      } else {
+        _enqueueOfflineAction(
+            action: 'set',
+            collection: 'users',
+            documentId: user.id,
+            data: user.toJson());
+      }
+    } catch (_) {
+      _enqueueOfflineAction(
+          action: 'set',
+          collection: 'users',
+          documentId: user.id,
+          data: user.toJson());
     }
   }
 
@@ -491,40 +682,29 @@ class PosRepository {
     );
 
     try {
-      await _firestore.deleteDocument('users', id);
-      final String ver = DateTime.now().millisecondsSinceEpoch.toString();
-      await _storage.writeString(_keyUsersVer, ver);
-      _touchSyncMetadata(usersVersion: ver);
-    } catch (e) {
-      debugPrint('Firestore deleteSingleUser error: $e');
+      final bool ok = await _firestore.deleteDocument('users', id);
+      if (ok) {
+        isOnlineNotifier.value = true;
+        final String ver = DateTime.now().millisecondsSinceEpoch.toString();
+        await _storage.writeString(_keyUsersVer, ver);
+        _touchSyncMetadata(usersVersion: ver);
+      } else {
+        _enqueueOfflineAction(
+            action: 'delete', collection: 'users', documentId: id);
+      }
+    } catch (_) {
+      _enqueueOfflineAction(
+          action: 'delete', collection: 'users', documentId: id);
     }
   }
 
   Future<void> saveUsers(List<AppUser> users) async {
-    final List<AppUser> oldUsers = loadUsers();
-    final Set<String> newIds = users.map((AppUser u) => u.id).toSet();
-    final List<String> deletedIds = oldUsers
-        .where((AppUser u) => !newIds.contains(u.id))
-        .map((AppUser u) => u.id)
-        .toList();
-
     await _storage.writeList(
       LocalStorage.usersKey,
       users.map((AppUser user) => user.toJson()).toList(),
     );
-
-    try {
-      for (final String id in deletedIds) {
-        _firestore.deleteDocument('users', id);
-      }
-      final List<Map<String, dynamic>> items =
-          users.map((AppUser u) => u.toJson()).toList();
-      await _firestore.saveBatch('users', items);
-      final String ver = DateTime.now().millisecondsSinceEpoch.toString();
-      await _storage.writeString(_keyUsersVer, ver);
-      _touchSyncMetadata(usersVersion: ver);
-    } catch (e) {
-      debugPrint('Firestore saveUsers error: $e');
+    for (final AppUser u in users) {
+      saveSingleUser(u);
     }
   }
 
@@ -539,14 +719,6 @@ class PosRepository {
       LocalStorage.heldCartsKey,
       carts.map((HeldCart cart) => cart.toJson()).toList(),
     );
-
-    try {
-      final List<Map<String, dynamic>> items =
-          carts.map((HeldCart c) => c.toJson()).toList();
-      await _firestore.saveBatch('held_carts', items);
-    } catch (e) {
-      debugPrint('Firestore saveHeldCarts error: $e');
-    }
   }
 
   // ── ڕێکخستنەکان ─────────────────────────────────────────────────────────
@@ -561,12 +733,26 @@ class PosRepository {
     await _storage.writeMap(LocalStorage.settingsKey, settings.toJson());
 
     try {
-      await _firestore.setDocument('settings', 'store', settings.toJson());
-      final String ver = DateTime.now().millisecondsSinceEpoch.toString();
-      await _storage.writeString(_keySettingsVer, ver);
-      _touchSyncMetadata(settingsVersion: ver);
-    } catch (e) {
-      debugPrint('Firestore saveSettings error: $e');
+      final bool ok = await _firestore.setDocument(
+          'settings', 'store', settings.toJson());
+      if (ok) {
+        isOnlineNotifier.value = true;
+        final String ver = DateTime.now().millisecondsSinceEpoch.toString();
+        await _storage.writeString(_keySettingsVer, ver);
+        _touchSyncMetadata(settingsVersion: ver);
+      } else {
+        _enqueueOfflineAction(
+            action: 'set',
+            collection: 'settings',
+            documentId: 'store',
+            data: settings.toJson());
+      }
+    } catch (_) {
+      _enqueueOfflineAction(
+          action: 'set',
+          collection: 'settings',
+          documentId: 'store',
+          data: settings.toJson());
     }
   }
 
@@ -581,8 +767,16 @@ class PosRepository {
         'counter': next,
         'updatedAt': DateTime.now().toIso8601String(),
       });
-    } catch (e) {
-      debugPrint('Firestore nextInvoiceSequence error: $e');
+    } catch (_) {
+      _enqueueOfflineAction(
+        action: 'set',
+        collection: 'sequences',
+        documentId: 'invoices',
+        data: <String, dynamic>{
+          'counter': next,
+          'updatedAt': DateTime.now().toIso8601String(),
+        },
+      );
     }
     return next;
   }
@@ -595,8 +789,16 @@ class PosRepository {
         'counter': value,
         'updatedAt': DateTime.now().toIso8601String(),
       });
-    } catch (e) {
-      debugPrint('Firestore saveInvoiceSequence error: $e');
+    } catch (_) {
+      _enqueueOfflineAction(
+        action: 'set',
+        collection: 'sequences',
+        documentId: 'invoices',
+        data: <String, dynamic>{
+          'counter': value,
+          'updatedAt': DateTime.now().toIso8601String(),
+        },
+      );
     }
   }
 

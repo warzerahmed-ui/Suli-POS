@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_strings.dart';
@@ -7,6 +7,7 @@ import '../state/auth_controller.dart';
 import '../state/cart_controller.dart';
 import '../state/settings_controller.dart';
 import '../widgets/app_widgets.dart';
+import '../data/pos_repository.dart';
 import '../widgets/brand_badge.dart';
 import 'dashboard_screen.dart';
 import 'pos/pos_screen.dart';
@@ -351,6 +352,181 @@ class _UserMenuButton extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+
+/// نیشاندەری زیرەکی پەیوەندی و ئۆفلاین لە شریتی سەرەوە
+class _ConnectionBadge extends StatelessWidget {
+  const _ConnectionBadge();
+
+  @override
+  Widget build(BuildContext context) {
+    final PosRepository repo = context.watch<PosRepository>();
+
+    return ValueListenableBuilder<bool>(
+      valueListenable: repo.isOnlineNotifier,
+      builder: (BuildContext context, bool isOnline, Widget? _) {
+        return ValueListenableBuilder<int>(
+          valueListenable: repo.pendingSyncCountNotifier,
+          builder: (BuildContext context, int pending, Widget? _) {
+            final bool fullyOnline = isOnline && pending == 0;
+            final Color color =
+                fullyOnline ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
+            final IconData icon = fullyOnline
+                ? Icons.cloud_done_rounded
+                : (pending > 0
+                    ? Icons.cloud_upload_outlined
+                    : Icons.cloud_off_rounded);
+            final String label = fullyOnline
+                ? 'ئۆنلاین (فایەربەیس)'
+                : (pending > 0
+                    ? 'ئۆفلاین ($pending چاوەڕێیە)'
+                    : 'ئۆفلاین (بێ ئینتەرنێت)');
+
+            return Tooltip(
+              message: fullyOnline
+                  ? 'سیستەم پەیوەستە بە فایەربەیس (suli-pos) - هەموو داتاکان هاوکاتن'
+                  : 'سیستەم لە دۆخی ئۆفلایندایە - کارکردن بەردەوامە و هیچ فرۆشتنێک ناوەستێت. کلیک بکە بۆ هاوکاتکردنەوە.',
+              child: InkWell(
+                onTap: () => _showSyncDialog(context, repo, fullyOnline, pending),
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: color.withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      Icon(icon, size: 16, color: color),
+                      const SizedBox(width: 6),
+                      Text(
+                        label,
+                        style: TextStyle(
+                          color: color,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showSyncDialog(
+    BuildContext context,
+    PosRepository repo,
+    bool isOnline,
+    int pending,
+  ) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext ctx) {
+        bool syncing = false;
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: Row(
+                children: <Widget>[
+                  Icon(
+                    isOnline ? Icons.cloud_done_rounded : Icons.cloud_off_rounded,
+                    color: isOnline
+                        ? const Color(0xFF10B981)
+                        : const Color(0xFFF59E0B),
+                  ),
+                  const SizedBox(width: 10),
+                  const Text('دۆخی هاوکاتکردنی فایەربەیس'),
+                ],
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    isOnline
+                        ? 'سیستەم بە سەرکەوتوویی پەیوەستە بە هەوری فایەربەیس (suli-pos).'
+                        : 'سیستەمی مارکێتەکەت لە دۆخی ئۆفلاین کار دەکات. هەموو فرۆشتنەکان لە بیرگەی ئامێرەکەدا بە تەواوی پارێزراون و بە هیچ جۆرێک کار ناوەستێت.',
+                    style: const TextStyle(height: 1.5),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        const Text('مامەڵەی چاوەڕێکراو بۆ ناردن:'),
+                        Text(
+                          '$pending دانە',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: pending > 0
+                                ? const Color(0xFFF59E0B)
+                                : const Color(0xFF10B981),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('داخستن'),
+                ),
+                FilledButton.icon(
+                  onPressed: syncing
+                      ? null
+                      : () async {
+                          setState(() => syncing = true);
+                          final int synced = await repo.syncPendingQueue();
+                          setState(() => syncing = false);
+                          if (context.mounted) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  synced > 0
+                                      ? '$synced مامەڵە بە سەرکەوتوویی نێردرانە فایەربەیس.'
+                                      : (repo.isOnlineNotifier.value
+                                          ? 'پەیوەندی لەسەر هێڵە و هەموو داتاکان هاوکاتن.'
+                                          : 'هێشتا ئینتەرنێت پەیدا نەبووەتەوە، داتاکان لە ئامێرەکە پارێزراون.'),
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                  icon: syncing
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.sync_rounded),
+                  label: Text(syncing ? 'هاوکات دەکرێت...' : 'هاوکاتکردنەوە ئێستا'),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }
