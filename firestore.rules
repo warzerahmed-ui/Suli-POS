@@ -1,0 +1,142 @@
+rules_version = '2';
+
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// This security rules file assumes the following data structures:
+//
+// Collection: products
+// Document ID: productId (e.g. prod-12345 or Firestore auto-ID)
+// Fields:
+//   - id: string (required) - unique product ID
+//   - name: string (required) - product name in Kurdish/English
+//   - barcode: string (optional) - product barcode
+//   - categoryId: string (optional) - reference to category document ID
+//   - unit: string (optional) - piece, pack, box, dozen, kilogram, gram, liter, milliliter, meter
+//   - costPrice: number (required) - purchasing cost price
+//   - salePrice: number (required) - retail sale price
+//   - stock: number (optional) - current available inventory quantity
+//   - lowStockThreshold: number (optional) - reorder notification limit
+//   - isActive: bool (optional) - product availability status
+//   - createdAt: string/timestamp (optional) - creation date
+//
+// Collection: categories
+// Document ID: categoryId (e.g. uncategorized, cat-123)
+// Fields:
+//   - id: string (required) - unique category ID
+//   - name: string (required) - category display name
+//   - iconKey: string (optional) - icon identifier
+//   - colorValue: int/number (optional) - hex color integer
+//
+// Collection: sales
+// Document ID: saleId (e.g. INV-20260312-0001)
+// Fields:
+//   - id: string (required) - invoice identifier
+//   - items: list of maps (required) - sold line items with quantity, unitPrice, unitCost
+//   - createdAt: string/timestamp (required) - timestamp of invoice creation
+//   - cashierId: string (required) - identifier of user who processed sale
+//   - cashierName: string (required) - display name of cashier
+//   - discount: number (optional) - discount applied
+//   - taxPercent: number (optional) - sales tax percentage
+//   - paidAmount: number (optional) - amount received from customer
+//   - paymentMethod: string (optional) - cash, card, credit
+//   - customerName: string (optional) - customer name for credit/invoicing
+//   - customerPhone: string (optional) - customer phone number
+//   - note: string (optional) - additional notes
+//   - voidedAt: string/timestamp/null (optional) - void timestamp if cancelled
+//   - voidedBy: string/null (optional) - username or ID who voided
+//
+// Collection: users
+// Document ID: userId (e.g. user-admin, user-123)
+// Fields:
+//   - id: string (required) - unique user ID
+//   - fullName: string (required) - staff full name
+//   - username: string (required) - login username or phone number
+//   - passwordHash: string (required) - SHA-256 hashed password
+//   - role: string (required) - admin or cashier
+//   - isActive: bool (optional) - active account status
+//   - createdAt: string/timestamp (optional) - registration timestamp
+//
+// Collection: settings
+// Document ID: settingId (e.g. store, profile)
+// Fields:
+//   - storeName: string (required) - market name
+//   - phone: string (optional) - store phone number
+//   - address: string (optional) - market address/location
+//   - currencySymbol: string (optional) - currency label (د.ع, $, etc.)
+//   - currencyDecimals: int (optional) - decimal precision
+//   - taxPercent: number (optional) - default tax percent
+//   - receiptFooter: string (optional) - footer text printed on receipts
+//   - isDarkMode: bool (optional) - UI theme preference
+//
+// Collection: sequences
+// Document ID: sequenceId (e.g. invoices)
+// Fields:
+//   - value / current / counter: int - sequence number tracker for generating invoice numbers
+//   - updatedAt: string/timestamp (optional)
+//
+// Collection: held_carts
+// Document ID: cartId
+// Fields:
+//   - id: string (required)
+//   - label: string (optional)
+//   - createdAt: string/timestamp
+//   - items: list of maps
+//   - discount: number
+//
+// ===============================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // -----------------------------------------------------------
+    // POS Business Collections
+    // Note: The app uses internal role management (AppUser with
+    // SHA-256 hashes) instead of Firebase Auth tokens. Read and write
+    // access is enabled for POS terminals across these operational collections.
+    // -----------------------------------------------------------
+
+    // 1. Products catalog
+    match /products/{productId} {
+      allow read, write: if true;
+    }
+
+    // 2. Categories
+    match /categories/{categoryId} {
+      allow read, write: if true;
+    }
+
+    // 3. Sales / Invoices
+    match /sales/{saleId} {
+      allow read, write: if true;
+    }
+
+    // 4. Staff & Admin users
+    match /users/{userId} {
+      allow read, write: if true;
+    }
+
+    // 5. Store settings
+    match /settings/{settingId} {
+      allow read, write: if true;
+    }
+
+    // 6. Invoice sequence counter
+    match /sequences/{seqId} {
+      allow read, write: if true;
+    }
+
+    // 7. Parked / Held carts
+    match /held_carts/{cartId} {
+      allow read, write: if true;
+    }
+
+    // -----------------------------------------------------------
+    // Default Deny: Protect all unspecified paths
+    // -----------------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

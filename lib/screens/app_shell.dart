@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_strings.dart';
@@ -16,7 +16,7 @@ import 'sales_screen.dart';
 import 'settings_screen.dart';
 import 'users_screen.dart';
 
-/// بەشێکی چوارچێوەکە (مێنوو + شاشە).
+/// Ø¨Û•Ø´ÛŽÚ©ÛŒ Ú†ÙˆØ§Ø±Ú†ÛŽÙˆÛ•Ú©Û• (Ù…ÛŽÙ†ÙˆÙˆ + Ø´Ø§Ø´Û•).
 class _ShellSection {
   const _ShellSection({
     required this.label,
@@ -31,7 +31,7 @@ class _ShellSection {
   final WidgetBuilder builder;
 }
 
-/// چوارچێوەی سەرەکی سیستەم: شریتی سەرەوە + مێنووی لاتەنیشت (یان درێوەر).
+/// Ú†ÙˆØ§Ø±Ú†ÛŽÙˆÛ•ÛŒ Ø³Û•Ø±Û•Ú©ÛŒ Ø³ÛŒØ³ØªÛ•Ù…: Ø´Ø±ÛŒØªÛŒ Ø³Û•Ø±Û•ÙˆÛ• + Ù…ÛŽÙ†ÙˆÙˆÛŒ Ù„Ø§ØªÛ•Ù†ÛŒØ´Øª (ÛŒØ§Ù† Ø¯Ø±ÛŽÙˆÛ•Ø±).
 /// English: the main shell. A rail is used on wide screens, a drawer on
 /// phones/tablets. Cashiers only see the sections they are allowed to use.
 class AppShell extends StatefulWidget {
@@ -132,6 +132,35 @@ class _AppShellState extends State<AppShell> {
           ],
         ),
         actions: <Widget>[
+          Tooltip(
+            message: 'سیستەم پەیوەستە بە فایەربەیس (suli-pos) - هەموو داتاکان ڕاستەوخۆ دەپارێزرێن',
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.35),
+                ),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Icon(Icons.cloud_done_rounded, size: 16, color: Color(0xFF10B981)),
+                  SizedBox(width: 6),
+                  Text(
+                    'Firebase فایەربەیس',
+                    style: TextStyle(
+                      color: Color(0xFF10B981),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           IconButton(
             tooltip: AppStrings.darkMode,
             onPressed: settings.toggleDarkMode,
@@ -255,7 +284,7 @@ class _AppShellState extends State<AppShell> {
   }
 }
 
-/// پشتڕاستکردنەوەی دەرچوون و پاککردنەوەی سەبەتە.
+/// Ù¾Ø´ØªÚ•Ø§Ø³ØªÚ©Ø±Ø¯Ù†Û•ÙˆÛ•ÛŒ Ø¯Û•Ø±Ú†ÙˆÙˆÙ† Ùˆ Ù¾Ø§Ú©Ú©Ø±Ø¯Ù†Û•ÙˆÛ•ÛŒ Ø³Û•Ø¨Û•ØªÛ•.
 Future<void> confirmSignOut(BuildContext context) async {
   final bool confirmed = await AppDialogs.confirm(
     context,
@@ -268,7 +297,7 @@ Future<void> confirmSignOut(BuildContext context) async {
   context.read<AuthController>().signOut();
 }
 
-/// لیستی بەکارهێنەر لە شریتی سەرەوە (زانیاری + دەرچوون).
+/// Ù„ÛŒØ³ØªÛŒ Ø¨Û•Ú©Ø§Ø±Ù‡ÛŽÙ†Û•Ø± Ù„Û• Ø´Ø±ÛŒØªÛŒ Ø³Û•Ø±Û•ÙˆÛ• (Ø²Ø§Ù†ÛŒØ§Ø±ÛŒ + Ø¯Û•Ø±Ú†ÙˆÙˆÙ†).
 class _UserMenuButton extends StatelessWidget {
   const _UserMenuButton();
 

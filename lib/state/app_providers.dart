@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 
 import '../data/demo_data.dart';
 import '../data/local_storage.dart';
@@ -11,7 +11,7 @@ import 'inventory_controller.dart';
 import 'sales_controller.dart';
 import 'settings_controller.dart';
 
-/// کۆکراوەی هەموو کۆنترۆڵەرەکان + دابینکردنی داتای سەرەتایی.
+/// Ú©Û†Ú©Ø±Ø§ÙˆÛ•ÛŒ Ù‡Û•Ù…ÙˆÙˆ Ú©Û†Ù†ØªØ±Û†ÚµÛ•Ø±Û•Ú©Ø§Ù† + Ø¯Ø§Ø¨ÛŒÙ†Ú©Ø±Ø¯Ù†ÛŒ Ø¯Ø§ØªØ§ÛŒ Ø³Û•Ø±Û•ØªØ§ÛŒÛŒ.
 ///
 /// English: composition root. `bootstrap()` opens the storage, seeds demo data
 /// on the very first run and returns every controller wired together.
@@ -33,6 +33,7 @@ class AppProviders {
   static Future<AppProviders> bootstrap() async {
     final LocalStorage storage = await LocalStorage.open();
     final PosRepository repository = PosRepository(storage);
+    await repository.initialize();
     if (!repository.hasSeeded) {
       await _seed(repository);
     }
@@ -54,7 +55,7 @@ class AppProviders {
   void _syncTaxWithSettings() =>
       cart.setTaxPercent(settings.settings.taxPercent);
 
-  /// بارکردنەوەی داتای نموونە (لە ڕووکاری ڕێکخستنەکانەوە).
+  /// Ø¨Ø§Ø±Ú©Ø±Ø¯Ù†Û•ÙˆÛ•ÛŒ Ø¯Ø§ØªØ§ÛŒ Ù†Ù…ÙˆÙˆÙ†Û• (Ù„Û• Ú•ÙˆÙˆÚ©Ø§Ø±ÛŒ Ú•ÛŽÚ©Ø®Ø³ØªÙ†Û•Ú©Ø§Ù†Û•ÙˆÛ•).
   Future<void> loadDemoData() async {
     final List<Product> products = DemoData.products();
     final List<Sale> demoSales = DemoData.sales(products);
@@ -73,7 +74,7 @@ class AppProviders {
     settings.load();
   }
 
-  /// سڕینەوەی هەموو داتا و گەڕانەوە بۆ دۆخی سەرەتا.
+  /// Ø³Ú•ÛŒÙ†Û•ÙˆÛ•ÛŒ Ù‡Û•Ù…ÙˆÙˆ Ø¯Ø§ØªØ§ Ùˆ Ú¯Û•Ú•Ø§Ù†Û•ÙˆÛ• Ø¨Û† Ø¯Û†Ø®ÛŒ Ø³Û•Ø±Û•ØªØ§.
   Future<void> resetAll() async {
     await repository.clearEverything();
     await _seed(repository);
