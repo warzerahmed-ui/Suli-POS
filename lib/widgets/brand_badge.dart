@@ -48,7 +48,7 @@ class RandSuiteLogo extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          'RS',
+          'SP',
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w900,
@@ -66,32 +66,12 @@ class RandSuiteLogo extends StatelessWidget {
           badgeIcon,
           const SizedBox(width: 8),
           Text(
-            AppStrings.brandName,
+            'SULI-POS',
             style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: size * 0.45,
+              fontWeight: FontWeight.w900,
+              fontSize: size * 0.48,
               color: textColor,
-              letterSpacing: 0.5,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
-            decoration: BoxDecoration(
-              color: AppColors.secondary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(4),
-              border: Border.all(
-                color: AppColors.secondary.withValues(alpha: 0.5),
-                width: 0.8,
-              ),
-            ),
-            child: Text(
-              'POS',
-              style: TextStyle(
-                color: AppColors.secondary,
-                fontWeight: FontWeight.w800,
-                fontSize: size * 0.3,
-              ),
+              letterSpacing: 0.8,
             ),
           ),
         ],
@@ -104,39 +84,14 @@ class RandSuiteLogo extends StatelessWidget {
       children: <Widget>[
         badgeIcon,
         const SizedBox(height: 10),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Text(
-              AppStrings.brandName,
-              style: TextStyle(
-                fontSize: size * 0.6,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.2,
-                color: textColor,
-              ),
-            ),
-            const SizedBox(width: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.4),
-                  width: 1,
-                ),
-              ),
-              child: Text(
-                'POS',
-                style: TextStyle(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w800,
-                  fontSize: size * 0.35,
-                ),
-              ),
-            ),
-          ],
+        Text(
+          'SULI-POS',
+          style: TextStyle(
+            fontSize: size * 0.68,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 1.5,
+            color: textColor,
+          ),
         ),
         if (showTagline) ...<Widget>[
           const SizedBox(height: 4),

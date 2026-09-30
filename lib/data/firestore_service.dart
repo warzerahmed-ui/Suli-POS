@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 /// خزمەتگوزاری پەیوەندی ڕاستەوخۆ بە فایەربەیس فایەرستۆر.
-/// Direct Firebase Firestore REST API client for Suli POS.
+/// Direct Firebase Firestore REST API client for SULI-POS.
 /// Guarantees that all products, categories, sales, users, settings, and
 /// counters are synchronized immediately with the cloud database.
 class FirestoreService {

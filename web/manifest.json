@@ -1,7 +1,7 @@
 ﻿{
-  "name": "Suli POS - RAND SUITE",
-  "short_name": "Suli POS",
-  "description": "سیستەمی پێشکەوتووی خاڵی فرۆشتن و کۆگا - RAND SUITE",
+  "name": "SULI-POS",
+  "short_name": "SULI-POS",
+  "description": "SULI-POS - سیستەمی پێشکەوتووی خاڵی فرۆشتن و کۆگا | RAND SUITE",
   "start_url": "./",
   "id": "/?source=pwa",
   "scope": "./",

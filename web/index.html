@@ -5,7 +5,7 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="Suli POS - RAND SUITE | سیستەمی پێشکەوتووی خاڵی فرۆشتن و کۆگا">
+  <meta name="description" content="SULI-POS | سیستەمی پێشکەوتووی خاڵی فرۆشتن و کۆگا - RAND SUITE">
 
   <!-- Mobile Viewport & Fullscreen Control -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -18,7 +18,7 @@
   <!-- iOS PWA Meta Tags & Icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Suli POS">
+  <meta name="apple-mobile-web-app-title" content="SULI-POS">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="apple-touch-icon" sizes="192x192" href="icons/Icon-192.png">
   <link rel="apple-touch-icon" sizes="512x512" href="icons/Icon-512.png">
@@ -29,7 +29,7 @@
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>Suli POS - RAND SUITE</title>
+  <title>SULI-POS</title>
   <link rel="manifest" href="manifest.json">
 
   <style>
@@ -80,9 +80,9 @@
     }
 
     .splash-title {
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 800;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
       margin-bottom: 6px;
       color: #FFFFFF;
       text-shadow: 0 2px 4px rgba(0,0,0,0.3);
@@ -119,10 +119,10 @@
   <!-- Native Luxury Splash Screen shown before Flutter CanvasKit loads -->
   <div id="pwa-splash">
     <div class="splash-logo-container">
-      <img class="splash-logo" src="icons/Icon-192.png" alt="Suli POS">
+      <img class="splash-logo" src="icons/Icon-192.png" alt="SULI-POS">
     </div>
-    <div class="splash-title">Suli POS</div>
-    <div class="splash-subtitle">RAND SUITE • سیستمێکی مۆدێرن و خێرا</div>
+    <div class="splash-title">SULI-POS</div>
+    <div class="splash-subtitle">سیستمێکی مۆدێرن و خێرا • RAND SUITE</div>
     <div class="splash-spinner"></div>
   </div>
 
@@ -151,12 +151,12 @@
       e.preventDefault();
       deferredInstallPrompt = e;
       window.pwaInstallPrompt = deferredInstallPrompt;
-      console.log('Suli POS PWA is installable');
+      console.log('SULI-POS PWA is installable');
     });
 
     window.addEventListener('appinstalled', () => {
       window.pwaInstallPrompt = null;
-      console.log('Suli POS was successfully installed as a native PWA');
+      console.log('SULI-POS was successfully installed as a native PWA');
     });
   </script>
 

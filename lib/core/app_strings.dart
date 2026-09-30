@@ -7,12 +7,12 @@ class AppStrings {
   const AppStrings._();
 
   // ── گشتی (common) ────────────────────────────────────────────────────────
-  static const String appTitle = 'RAND SUITE POS';
+  static const String appTitle = 'SULI-POS';
   static const String appSubtitle = 'سیستەمی پێشکەوتووی بەڕێوەبردنی خاڵی فرۆشتن';
-  static const String brandName = 'RAND SUITE';
+  static const String brandName = 'SULI-POS';
   static const String poweredBy = 'Powered by RAND SUITE';
   static const String developedBy = 'گەشەپێدراوە لەلایەن RAND SUITE';
-  static const String brandTagline = 'سیستەمی مۆدێرن و خێرای مارکێت و خاڵی فرۆشتن';
+  static const String brandTagline = 'سیستەمی مۆدێرن و خێرای مارکێت و خاڵی فرۆشتن • RAND SUITE';
   static const String loading = 'چاوەڕوان بە...';
   static const String noData = 'هیچ داتایەک نییە';
   static const String search = 'گەڕان';
@@ -256,12 +256,12 @@ class AppStrings {
   // ── بەرنامەی مۆبایل (PWA Install) ───────────────────────────────────────
   static const String installApp = 'دابەزاندنی ئەپ بۆ مۆبایل';
   static const String installAppDesc = 'بەکارهێنانی سیستەم وەک ئەپێکی سەربەخۆی مۆبایل';
-  static const String pwaInstallTitle = 'دامەزراندنی Suli POS لەسەر مۆبایل';
+  static const String pwaInstallTitle = 'دامەزراندنی SULI-POS لەسەر مۆبایل';
   static const String pwaInstallIosGuide =
       'بۆ ئەوەی سیستەمەکە وەک ئەپێکی ڕەسمی لەسەر ئایفۆن دابەزێت:\n'
       '١. لە وێبگەڕی Safari دەست بنێ بە دوگمەی هاوبەشکردن (Share ⎋).\n'
       '٢. لە لیستەکەدا کلیک بکە لەسەر "Add to Home Screen" (زیادکردن بۆ پەڕەی سەرەکی).\n'
-      '٣. دەست بنێ بە Add. ئێستا ئایکۆنی ڕەسمی Suli POS دەکەوێتە سەر شاشەی مۆبایلەکەت!';
+      '٣. دەست بنێ بە Add. ئێستا ئایکۆنی ڕەسمی SULI-POS دەکەوێتە سەر شاشەی مۆبایلەکەت!';
   static const String pwaInstallAndroidGuide =
       'بۆ ئەوەی سیستەمەکە وەک ئەپێکی سەربەخۆ لەسەر ئەندرۆید دابەزێت:\n'
       '١. لە وێبگەڕی Chrome دەست بنێ بە سێ خاڵەکەی سەرەوە (⋮).\n'
