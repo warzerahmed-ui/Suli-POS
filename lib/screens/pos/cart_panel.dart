@@ -9,6 +9,7 @@ import '../../state/cart_controller.dart';
 import '../../state/settings_controller.dart';
 import '../../widgets/app_widgets.dart';
 import 'checkout_dialog.dart';
+import 'exchange_dialog.dart';
 
 /// پانێلی سەبەتە: لیستی کاڵاکان، داشکاندن، کۆکردنەوە و پارەدان.
 /// English: the cart side panel used by the POS screen.
@@ -65,6 +66,11 @@ class CartPanel extends StatelessWidget {
                 tooltip: AppStrings.holdCart,
                 onPressed: cart.isEmpty ? null : () => holdCurrentCart(context),
                 icon: const Icon(Icons.pause_circle_outline),
+              ),
+              IconButton(
+                tooltip: AppStrings.exchange,
+                onPressed: () => showExchangeDialog(context),
+                icon: const Icon(Icons.swap_horiz_rounded),
               ),
               IconButton(
                 tooltip: AppStrings.clearCart,

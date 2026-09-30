@@ -262,6 +262,30 @@ class AppStrings {
       '١. لە وێبگەڕی Safari دەست بنێ بە دوگمەی هاوبەشکردن (Share ⎋).\n'
       '٢. لە لیستەکەدا کلیک بکە لەسەر "Add to Home Screen" (زیادکردن بۆ پەڕەی سەرەکی).\n'
       '٣. دەست بنێ بە Add. ئێستا ئایکۆنی ڕەسمی SULI-POS دەکەوێتە سەر شاشەی مۆبایلەکەت!';
+  // ── ئاڵوگۆڕی کاڵا (Item Exchange & Settlement) ───────────────────────────
+  static const String exchange = 'ئاڵوگۆڕی کاڵا';
+  static const String exchangeSubtitle =
+      'گەڕاندنەوەی کاڵای کڕدراو و فرۆشتنی کاڵای تر لەگەڵ ساقی و باقی';
+  static const String returnedItem = 'کاڵای گەڕاوە (کۆن)';
+  static const String returnedItemShort = 'گەڕاوە';
+  static const String newItem = 'کاڵای نوێ (جێگرەوە)';
+  static const String returnedTotal = 'کۆی کاڵای گەڕاوە';
+  static const String newTotal = 'کۆی کاڵای نوێ';
+  static const String balanceSettlement = 'ساقی و باقی (جیاوازی)';
+  static const String customerMustPay = 'کڕیار دەبێت جیاوازی پارەکە بدات';
+  static const String storeMustRefund = 'ئەم بڕە بۆ کڕیار دەگەڕێتەوە لە قاسە';
+  static const String evenExchange = 'ساقی و باقی یەکسانە (بەبێ جیاوازی پارە)';
+  static const String completeExchange = 'تەواوکردنی ئاڵوگۆڕ و دەرکردنی وەسڵ';
+  static const String exchangeCompleted =
+      'ئاڵوگۆڕ بە سەرکەوتوویی تەواوبوو، کۆگا نوێکرایەوە';
+  static const String exchangeNoteDefault =
+      'ئاڵوگۆڕی کاڵا و هەژمارکردنی ساقی و باقی';
+  static const String selectProduct = 'کاڵایەک دیاری بکە';
+  static const String addReturnItem = 'زیادکردنی کاڵای گەڕاوە';
+  static const String addNewItem = 'زیادکردنی کاڵای نوێ';
+  static const String returnPrice = 'نرخی گەڕاندنەوە';
+  static const String exchangeFromInvoice = 'ئاڵوگۆڕ لەم پسووڵەیە';
+
   static const String pwaInstallAndroidGuide =
       'بۆ ئەوەی سیستەمەکە وەک ئەپێکی سەربەخۆ لەسەر ئەندرۆید دابەزێت:\n'
       '١. لە وێبگەڕی Chrome دەست بنێ بە سێ خاڵەکەی سەرەوە (⋮).\n'

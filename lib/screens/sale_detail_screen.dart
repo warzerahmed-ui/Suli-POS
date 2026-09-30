@@ -13,6 +13,7 @@ import '../state/sales_controller.dart';
 import '../state/settings_controller.dart';
 import '../widgets/app_widgets.dart';
 import '../widgets/receipt_view.dart';
+import 'pos/exchange_dialog.dart';
 
 /// وردەکاری پسووڵەیەک (وەسڵ + قازانج + هەڵوەشاندنەوە).
 /// English: one invoice: the receipt, its numbers and the void action.
@@ -43,6 +44,13 @@ class SaleDetailScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text(sale.id),
         actions: <Widget>[
+          if (!sale.isVoided)
+            IconButton(
+              tooltip: AppStrings.exchangeFromInvoice,
+              icon: const Icon(Icons.swap_horiz_rounded),
+              onPressed: () =>
+                  showExchangeDialog(context, initialReturnedSale: sale),
+            ),
           IconButton(
             tooltip: AppStrings.copyReceipt,
             icon: const Icon(Icons.copy_all_outlined),

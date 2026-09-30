@@ -110,6 +110,9 @@ class Sale {
 
   bool get isVoided => voidedAt != null;
 
+  /// ئایا ئەم پسووڵەیە ئاڵوگۆڕە (کاڵای گەڕاوەی بە بڕی نەرێنی تێدایە).
+  bool get isExchange => items.any((SaleItem item) => item.quantity < 0);
+
   /// فرۆشتن بە قەرزە یان قەرزی ماوە.
   bool get isCredit => paymentMethod == PaymentMethod.credit || debtAmount > 0;
 

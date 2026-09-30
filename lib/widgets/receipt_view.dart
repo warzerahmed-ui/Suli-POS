@@ -160,7 +160,10 @@ class ReceiptView extends StatelessWidget {
                     ),
                     Text(
                       receiptMoney(settings, item.total),
-                      style: theme.textTheme.bodyMedium,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: item.quantity < 0 ? const Color(0xFFDC2626) : null,
+                        fontWeight: item.quantity < 0 ? FontWeight.bold : null,
+                      ),
                     ),
                   ],
                 ),
@@ -180,7 +183,19 @@ class ReceiptView extends StatelessWidget {
             sale.taxAmount,
           ),
         const SizedBox(height: 4),
-        _totalRow(context, AppStrings.total, sale.total, bold: true),
+        _totalRow(
+          context,
+          sale.items.any((SaleItem i) => i.quantity < 0)
+              ? 'ساقی و باقی (جیاوازی)'
+              : AppStrings.total,
+          sale.total,
+          bold: true,
+          valueColor: sale.items.any((SaleItem i) => i.quantity < 0)
+              ? (sale.total > 0
+                  ? const Color(0xFF10B981)
+                  : (sale.total < 0 ? const Color(0xFFF59E0B) : null))
+              : null,
+        ),
         _totalRow(context, AppStrings.paidAmount, sale.paidAmount),
         if (sale.isCredit)
           _totalRow(

@@ -85,5 +85,71 @@ void main() {
       expect(summary.creditInvoiceCount, 1);
       expect(summary.collectedRevenue, 2000); // 1000 + 1000
     });
+    test('Calculates Item Exchange and balance settlement (ساقی و باقی) correctly', () {
+      // حاڵەتی ١: کڕیار کاڵای ٥٠٠٠ دیناری دەگەڕێنێتەوە و کاڵای ٨٠٠٠ دیناری دەبات (+٣٠٠٠ پێویستە بدات)
+      final Sale exchangePositive = Sale(
+        id: 'EXC-001',
+        items: const <SaleItem>[
+          SaleItem(
+            productId: 'p_new',
+            name: 'پانتۆڵ',
+            unit: ProductUnit.piece,
+            unitPrice: 8000,
+            unitCost: 5000,
+            quantity: 1,
+          ),
+          SaleItem(
+            productId: 'p_ret',
+            name: 'کراس (گەڕاوە)',
+            unit: ProductUnit.piece,
+            unitPrice: 5000,
+            unitCost: 3000,
+            quantity: -1,
+          ),
+        ],
+        createdAt: DateTime.now(),
+        cashierId: 'c1',
+        cashierName: 'کاشێر',
+        paidAmount: 3000,
+        paymentMethod: PaymentMethod.cash,
+        note: 'ئاڵوگۆڕ: گەڕاندنەوەی کراس و بردنی پانتۆڵ',
+      );
+
+      expect(exchangePositive.isExchange, true);
+      expect(exchangePositive.total, 3000); // 8000 - 5000
+      expect(exchangePositive.paidAmount, 3000);
+      expect(exchangePositive.profit, 1000); // (8000 - 5000 profit) - (5000 - 3000 profit) = 3000 - 2000 = 1000
+
+      // حاڵەتی ٢: کڕیار کاڵای ٦٠٠٠ دیناری دەگەڕێنێتەوە و کاڵای ٤٠٠٠ دیناری دەبات (-٢٠٠٠ دەگەڕێتەوە بۆ کڕیار)
+      final Sale exchangeRefund = Sale(
+        id: 'EXC-002',
+        items: const <SaleItem>[
+          SaleItem(
+            productId: 'p_new2',
+            name: 'تیشێرت',
+            unit: ProductUnit.piece,
+            unitPrice: 4000,
+            unitCost: 2500,
+            quantity: 1,
+          ),
+          SaleItem(
+            productId: 'p_ret2',
+            name: 'چاکەت (گەڕاوە)',
+            unit: ProductUnit.piece,
+            unitPrice: 6000,
+            unitCost: 4000,
+            quantity: -1,
+          ),
+        ],
+        createdAt: DateTime.now(),
+        cashierId: 'c1',
+        cashierName: 'کاشێر',
+        paidAmount: -2000,
+        paymentMethod: PaymentMethod.cash,
+      );
+
+      expect(exchangeRefund.isExchange, true);
+      expect(exchangeRefund.total, -2000); // 4000 - 6000 = -2000 (Refund)
+    });
   });
 }

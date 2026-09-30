@@ -10,6 +10,7 @@ import '../../state/inventory_controller.dart';
 import '../../state/settings_controller.dart';
 import '../../widgets/app_widgets.dart';
 import 'cart_panel.dart';
+import 'exchange_dialog.dart';
 import 'product_tile.dart';
 
 /// شاشەی فرۆشتن (POS): گەڕان/بارکۆد، تۆڕی کاڵاکان و سەبەتە.
@@ -103,26 +104,46 @@ class _PosScreenState extends State<PosScreen> {
   Widget _buildSearchBar(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      child: TextField(
-        controller: _searchController,
-        textInputAction: TextInputAction.search,
-        onChanged: (String value) => setState(() => _query = value),
-        onSubmitted: _onSubmitted,
-        decoration: InputDecoration(
-          hintText: AppStrings.searchProductOrBarcode,
-          helperText: AppStrings.scanBarcode,
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: _query.isEmpty
-              ? null
-              : IconButton(
-                  tooltip: AppStrings.close,
-                  icon: const Icon(Icons.clear),
-                  onPressed: () {
-                    _searchController.clear();
-                    setState(() => _query = '');
-                  },
-                ),
-        ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Expanded(
+            child: TextField(
+              controller: _searchController,
+              textInputAction: TextInputAction.search,
+              onChanged: (String value) => setState(() => _query = value),
+              onSubmitted: _onSubmitted,
+              decoration: InputDecoration(
+                hintText: AppStrings.searchProductOrBarcode,
+                helperText: AppStrings.scanBarcode,
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _query.isEmpty
+                    ? null
+                    : IconButton(
+                        tooltip: AppStrings.close,
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() => _query = '');
+                        },
+                      ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: FilledButton.tonalIcon(
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () => showExchangeDialog(context),
+              icon: const Icon(Icons.swap_horiz_rounded),
+              label: const Text(AppStrings.exchange),
+            ),
+          ),
+        ],
       ),
     );
   }

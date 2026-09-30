@@ -1,5 +1,6 @@
-﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 
+import '../core/app_strings.dart';
 import '../core/formatters.dart';
 import '../data/pos_repository.dart';
 import '../models/analytics.dart';
@@ -153,6 +154,68 @@ class SalesController extends ChangeNotifier {
       customerPhone: customerPhone,
       note: note,
     );
+  }
+
+
+  /// ئەنجامدانی ئاڵوگۆڕی کاڵا:
+  /// کاڵا گەڕاوەکان دەخرێنەوە سەر کۆگا (+).
+  /// کاڵا نوێیەکان لە کۆگا کەم دەکرێنەوە (-).
+  /// هەژمارکردنی جیاوازی (ساقی و باقی) و تۆمارکردنی وەسڵ.
+  Future<Sale> processExchange({
+    required List<SaleItem> returnedItems,
+    required List<SaleItem> newItems,
+    required AppUser cashier,
+    required InventoryController inventory,
+    PaymentMethod paymentMethod = PaymentMethod.cash,
+    double? paidAmount,
+    String customerName = '',
+    String customerPhone = '',
+    String note = '',
+    DateTime? now,
+  }) async {
+    final DateTime createdAt = now ?? DateTime.now();
+
+    final List<SaleItem> negativeReturned = returnedItems
+        .map(
+          (SaleItem item) => SaleItem(
+            productId: item.productId,
+            name: ' ()',
+            unit: item.unit,
+            unitPrice: item.unitPrice,
+            unitCost: item.unitCost,
+            quantity: -item.quantity.abs(),
+          ),
+        )
+        .toList();
+
+    final List<SaleItem> allItems = <SaleItem>[
+      ...newItems,
+      ...negativeReturned,
+    ];
+
+    final int sequence = _repository.nextInvoiceSequence();
+    final String id = 'EXC-${Formatters.isoDate(createdAt).replaceAll('-', '')}-${sequence.toString().padLeft(4, '0')}';
+
+    final Sale sale = Sale(
+      id: id,
+      items: allItems,
+      createdAt: createdAt,
+      cashierId: cashier.id,
+      cashierName: cashier.fullName,
+      discount: 0,
+      taxPercent: 0,
+      paidAmount: paidAmount ?? 0,
+      paymentMethod: paymentMethod,
+      customerName: customerName,
+      customerPhone: customerPhone,
+      note: note.isNotEmpty ? note : AppStrings.exchangeNoteDefault,
+    );
+
+    _sales = <Sale>[sale, ..._sales];
+    await _repository.saveSingleSale(sale);
+    await inventory.applySaleStock(allItems);
+    notifyListeners();
+    return sale;
   }
 
   /// دانەوەی قەرزی پسووڵە (بە تەواوی یان بەشەکی).
