@@ -252,4 +252,19 @@ class AppStrings {
   static const String storageNote =
       'داتاکان بە شێوەی ناوخۆیی (SharedPreferences) لەم ئامێرەدا پاشەکەوت دەکرێن';
   static const String settingsSaved = 'ڕێکخستنەکان پاشەکەوت کران';
+
+  // ── بەرنامەی مۆبایل (PWA Install) ───────────────────────────────────────
+  static const String installApp = 'دابەزاندنی ئەپ بۆ مۆبایل';
+  static const String installAppDesc = 'بەکارهێنانی سیستەم وەک ئەپێکی سەربەخۆی مۆبایل';
+  static const String pwaInstallTitle = 'دامەزراندنی Suli POS لەسەر مۆبایل';
+  static const String pwaInstallIosGuide =
+      'بۆ ئەوەی سیستەمەکە وەک ئەپێکی ڕەسمی لەسەر ئایفۆن دابەزێت:\n'
+      '١. لە وێبگەڕی Safari دەست بنێ بە دوگمەی هاوبەشکردن (Share ⎋).\n'
+      '٢. لە لیستەکەدا کلیک بکە لەسەر "Add to Home Screen" (زیادکردن بۆ پەڕەی سەرەکی).\n'
+      '٣. دەست بنێ بە Add. ئێستا ئایکۆنی ڕەسمی Suli POS دەکەوێتە سەر شاشەی مۆبایلەکەت!';
+  static const String pwaInstallAndroidGuide =
+      'بۆ ئەوەی سیستەمەکە وەک ئەپێکی سەربەخۆ لەسەر ئەندرۆید دابەزێت:\n'
+      '١. لە وێبگەڕی Chrome دەست بنێ بە سێ خاڵەکەی سەرەوە (⋮).\n'
+      '٢. کلیک بکە لەسەر "Install app" یان "Add to Home screen".\n'
+      '٣. پشتڕاستی بکەرەوە تا وەک ئەپی فەرمی و بەبێ شریتی وێب کاربکات!';
 }

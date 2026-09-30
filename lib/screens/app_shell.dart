@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_strings.dart';
+import '../core/app_theme.dart';
 import '../models/app_user.dart';
 import '../state/auth_controller.dart';
 import '../state/cart_controller.dart';
@@ -133,35 +134,7 @@ class _AppShellState extends State<AppShell> {
           ],
         ),
         actions: <Widget>[
-          Tooltip(
-            message: 'سیستەم پەیوەستە بە فایەربەیس (suli-pos) - هەموو داتاکان ڕاستەوخۆ دەپارێزرێن',
-            child: Container(
-              margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF10B981).withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.35),
-                ),
-              ),
-              child: const Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Icon(Icons.cloud_done_rounded, size: 16, color: Color(0xFF10B981)),
-                  SizedBox(width: 6),
-                  Text(
-                    'Firebase فایەربەیس',
-                    style: TextStyle(
-                      color: Color(0xFF10B981),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          const _ConnectionBadge(),
           IconButton(
             tooltip: AppStrings.darkMode,
             onPressed: settings.toggleDarkMode,
@@ -263,6 +236,15 @@ class _AppShellState extends State<AppShell> {
           ),
         ),
         const Divider(),
+        ListTile(
+          leading: const Icon(Icons.install_mobile_rounded, color: AppColors.primary),
+          title: const Text(AppStrings.installApp),
+          subtitle: const Text(AppStrings.installAppDesc, style: TextStyle(fontSize: 11)),
+          onTap: () {
+            Navigator.of(context).pop();
+            _showPwaInstallGuide(context);
+          },
+        ),
         ListTile(
           leading: Icon(
             settings.isDarkMode
@@ -529,4 +511,79 @@ class _ConnectionBadge extends StatelessWidget {
       },
     );
   }
+}
+
+void _showPwaInstallGuide(BuildContext context) {
+  showDialog<void>(
+    context: context,
+    builder: (BuildContext ctx) {
+      return DefaultTabController(
+        length: 2,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Row(
+            children: <Widget>[
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withAlpha(25),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.install_mobile_rounded, color: AppColors.primary, size: 28),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  AppStrings.pwaInstallTitle,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: 440,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                const TabBar(
+                  indicatorColor: AppColors.primary,
+                  labelColor: AppColors.primary,
+                  tabs: <Widget>[
+                    Tab(icon: Icon(Icons.apple), text: 'iPhone / iPad'),
+                    Tab(icon: Icon(Icons.android), text: 'Android'),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 180,
+                  child: TabBarView(
+                    children: <Widget>[
+                      SingleChildScrollView(
+                        child: Text(
+                          AppStrings.pwaInstallIosGuide,
+                          style: const TextStyle(fontSize: 13, height: 1.6),
+                        ),
+                      ),
+                      SingleChildScrollView(
+                        child: Text(
+                          AppStrings.pwaInstallAndroidGuide,
+                          style: const TextStyle(fontSize: 13, height: 1.6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FilledButton.tonal(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text(AppStrings.close),
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }
