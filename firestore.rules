@@ -132,6 +132,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // 8. Sync version metadata (for minimal reads optimization)
+    match /sync/{syncId} {
+      allow read, write: if true;
+    }
+
     // -----------------------------------------------------------
     // Default Deny: Protect all unspecified paths
     // -----------------------------------------------------------

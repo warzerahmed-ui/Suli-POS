@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' hide Category;
+﻿import 'package:flutter/foundation.dart' hide Category;
 
 import '../data/pos_repository.dart';
 import '../models/category.dart';
@@ -111,13 +111,13 @@ class InventoryController extends ChangeNotifier {
           .map((Product item) => item.id == product.id ? product : item)
           .toList();
     }
-    await _repository.saveProducts(_products);
+    await _repository.saveSingleProduct(product);
     notifyListeners();
   }
 
   Future<void> deleteProduct(String id) async {
     _products = _products.where((Product product) => product.id != id).toList();
-    await _repository.saveProducts(_products);
+    await _repository.deleteSingleProduct(id);
     notifyListeners();
   }
 
@@ -131,7 +131,7 @@ class InventoryController extends ChangeNotifier {
           .map((Category item) => item.id == category.id ? category : item)
           .toList();
     }
-    await _repository.saveCategories(_categories);
+    await _repository.saveSingleCategory(category);
     notifyListeners();
   }
 
@@ -144,8 +144,7 @@ class InventoryController extends ChangeNotifier {
             ? product.copyWith(categoryId: '')
             : product)
         .toList();
-    await _repository.saveCategories(_categories);
-    await _repository.saveProducts(_products);
+    await _repository.deleteSingleCategory(id);
     notifyListeners();
   }
 
@@ -167,6 +166,7 @@ class InventoryController extends ChangeNotifier {
   Future<void> _applyStock(List<SaleItem> items, {required bool restore}) async {
     if (items.isEmpty) return;
     final Map<String, double> deltas = <String, double>{};
+    final Map<String, double> newStocks = <String, double>{};
     for (final SaleItem item in items) {
       final double value = restore ? item.quantity : -item.quantity;
       deltas[item.productId] = (deltas[item.productId] ?? 0) + value;
@@ -175,9 +175,11 @@ class InventoryController extends ChangeNotifier {
       final double? delta = deltas[product.id];
       if (delta == null) return product;
       final double stock = product.stock + delta;
-      return product.copyWith(stock: stock < 0 ? 0 : stock);
+      final double clamped = stock < 0 ? 0 : stock;
+      newStocks[product.id] = clamped;
+      return product.copyWith(stock: clamped);
     }).toList();
-    await _repository.saveProducts(_products);
+    await _repository.updateProductsStock(newStocks);
     notifyListeners();
   }
 

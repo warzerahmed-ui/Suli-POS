@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 
 import '../core/formatters.dart';
 import '../data/pos_repository.dart';
@@ -117,7 +117,7 @@ class SalesController extends ChangeNotifier {
     );
 
     _sales = <Sale>[sale, ..._sales];
-    await _repository.saveSales(_sales);
+    await _repository.saveSingleSale(sale);
     await inventory.applySaleStock(sale.items);
     notifyListeners();
     return sale;
@@ -164,7 +164,7 @@ class SalesController extends ChangeNotifier {
         amount != null ? (sale.paidAmount + amount) : sale.total;
     _sales = List<Sale>.from(_sales);
     _sales[index] = sale.copyWith(paidAmount: newPaid);
-    await _repository.saveSales(_sales);
+    await _repository.saveSingleSale(_sales[index]);
     notifyListeners();
   }
 
@@ -184,7 +184,7 @@ class SalesController extends ChangeNotifier {
       voidedAt: DateTime.now(),
       voidedBy: user.fullName,
     );
-    await _repository.saveSales(_sales);
+    await _repository.saveSingleSale(_sales[index]);
     await inventory.restoreStock(sale.items);
     notifyListeners();
   }

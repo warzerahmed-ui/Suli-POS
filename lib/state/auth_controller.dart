@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 
 import '../core/app_strings.dart';
 import '../core/password_hasher.dart';
@@ -72,8 +72,9 @@ class AuthController extends ChangeNotifier {
     );
     if (taken) return AppStrings.usernameTaken;
 
+    final AppUser userToSave;
     if (existing == null) {
-      final AppUser user = AppUser(
+      userToSave = AppUser(
         id: 'user-${DateTime.now().microsecondsSinceEpoch}',
         fullName: fullName.trim(),
         username: cleanUsername,
@@ -82,9 +83,9 @@ class AuthController extends ChangeNotifier {
         isActive: isActive,
         createdAt: DateTime.now(),
       );
-      _users = <AppUser>[..._users, user];
+      _users = <AppUser>[..._users, userToSave];
     } else {
-      final AppUser updated = existing.copyWith(
+      userToSave = existing.copyWith(
         fullName: fullName.trim(),
         username: cleanUsername,
         role: role,
@@ -94,11 +95,11 @@ class AuthController extends ChangeNotifier {
             : PasswordHasher.hash(password),
       );
       _users = _users
-          .map((AppUser user) => user.id == updated.id ? updated : user)
+          .map((AppUser user) => user.id == userToSave.id ? userToSave : user)
           .toList();
-      if (_currentUser?.id == updated.id) _currentUser = updated;
+      if (_currentUser?.id == userToSave.id) _currentUser = userToSave;
     }
-    _persist();
+    _repository.saveSingleUser(userToSave);
     notifyListeners();
     return null;
   }
@@ -119,7 +120,7 @@ class AuthController extends ChangeNotifier {
         _users.where((AppUser user) => user.isAdmin).length;
     if (removingAdmin && adminCount <= 1) return AppStrings.cantDeleteSelf;
     _users = _users.where((AppUser user) => user.id != id).toList();
-    _persist();
+    _repository.deleteSingleUser(id);
     notifyListeners();
     return null;
   }
