@@ -124,3 +124,4 @@ class PosProductTile extends StatelessWidget {
     );
   }
 }
+

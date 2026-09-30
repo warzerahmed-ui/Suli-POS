@@ -181,14 +181,19 @@ class _PosScreenState extends State<PosScreen> {
   ) {
     final List<Category> categories = inventory.categories;
     return SizedBox(
-      height: 48,
-      child: ListView(
+      height: 76,
+      child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsetsDirectional.only(end: 8),
-            child: FilterChip(
+        child: Wrap(
+          direction: Axis.vertical,
+          spacing: 6,
+          runSpacing: 6,
+          children: <Widget>[
+            FilterChip(
+              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+              labelStyle: const TextStyle(fontSize: 12),
+              padding: const EdgeInsets.all(0),
               label: Text(
                 '${AppStrings.allCategories} '
                 '(${inventory.activeProductCount})',
@@ -196,12 +201,12 @@ class _PosScreenState extends State<PosScreen> {
               selected: _categoryId.isEmpty,
               onSelected: (_) => setState(() => _categoryId = ''),
             ),
-          ),
-          ...categories.map(
-            (Category category) => Padding(
-              padding: const EdgeInsetsDirectional.only(end: 8),
-              child: FilterChip(
-                avatar: Icon(category.icon, size: 16, color: category.color),
+            ...categories.map(
+              (Category category) => FilterChip(
+                visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                labelStyle: const TextStyle(fontSize: 12),
+                padding: const EdgeInsets.all(0),
+                avatar: Icon(category.icon, size: 14, color: category.color),
                 label: Text(
                   '${category.name} '
                   '(${inventory.productCountInCategory(category.id)})',
@@ -214,8 +219,8 @@ class _PosScreenState extends State<PosScreen> {
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -237,10 +242,10 @@ class _PosScreenState extends State<PosScreen> {
     return GridView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 210,
-        mainAxisSpacing: 10,
-        crossAxisSpacing: 10,
-        childAspectRatio: 0.98,
+        maxCrossAxisExtent: 145,
+        mainAxisSpacing: 8,
+        crossAxisSpacing: 8,
+        childAspectRatio: 0.9,
       ),
       itemCount: products.length,
       itemBuilder: (BuildContext context, int index) {
@@ -328,3 +333,5 @@ class _CartSummaryBar extends StatelessWidget {
     );
   }
 }
+
+
