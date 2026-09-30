@@ -125,7 +125,7 @@ class FirestoreService {
   /// هێنانی هەموو دۆکیۆمێنتەکانی کۆکراوەیەک
   Future<List<Map<String, dynamic>>> getCollection(String collection) async {
     try {
-      final http.Response res = await _client.get(_collectionUri(collection));
+      final http.Response res = await _client.get(_collectionUri(collection), headers: await _getHeaders());
       if (res.statusCode == 200) {
         final dynamic decoded = jsonDecode(res.body);
         if (decoded is Map<String, dynamic> && decoded.containsKey('documents')) {
@@ -149,7 +149,7 @@ class FirestoreService {
   ) async {
     try {
       final http.Response res =
-          await _client.get(_documentUri(collection, documentId));
+          await _client.get(_documentUri(collection, documentId), headers: await _getHeaders());
       if (res.statusCode == 200) {
         final Map<String, dynamic> doc =
             jsonDecode(res.body) as Map<String, dynamic>;
@@ -173,7 +173,7 @@ class FirestoreService {
         'fields': encodeFields(data),
       };
       final http.Response res = await _client.patch(
-        _documentUri(collection, documentId),
+        _documentUri(collection, documentId), headers: await _getHeaders(),
         headers: <String, String>{'Content-Type': 'application/json'},
         body: jsonEncode(body),
       );
@@ -188,7 +188,7 @@ class FirestoreService {
   Future<bool> deleteDocument(String collection, String documentId) async {
     try {
       final http.Response res =
-          await _client.delete(_documentUri(collection, documentId));
+          await _client.delete(_documentUri(collection, documentId), headers: await _getHeaders());
       return res.statusCode >= 200 && res.statusCode < 300;
     } catch (e) {
       debugPrint('FirestoreService.deleteDocument error ($collection/$documentId): $e');
@@ -210,4 +210,9 @@ class FirestoreService {
     await Future.wait(futures);
   }
 }
+
+
+
+
+
 

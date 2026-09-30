@@ -18,6 +18,7 @@ import 'reports_screen.dart';
 import 'sales_screen.dart';
 import 'settings_screen.dart';
 import 'users_screen.dart';
+import 'shift_screen.dart';
 
 /// Ø¨Û•Ø´ÛŽÚ©ÛŒ Ú†ÙˆØ§Ø±Ú†ÛŽÙˆÛ•Ú©Û• (Ù…ÛŽÙ†ÙˆÙˆ + Ø´Ø§Ø´Û•).
 class _ShellSection {
@@ -60,6 +61,12 @@ class _AppShellState extends State<AppShell> {
         icon: Icons.point_of_sale_outlined,
         selectedIcon: Icons.point_of_sale,
         builder: (BuildContext context) => const PosScreen(),
+      ),
+      _ShellSection(
+        label: AppStrings.shift,
+        icon: Icons.lock_clock_outlined,
+        selectedIcon: Icons.lock_clock,
+        builder: (BuildContext context) => const ShiftScreen(),
       ),
       _ShellSection(
         label: AppStrings.sales,
@@ -614,3 +621,4 @@ void _showPwaInstallGuide(BuildContext context) {
     },
   );
 }
+

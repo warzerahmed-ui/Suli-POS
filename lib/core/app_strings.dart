@@ -1,4 +1,4 @@
-/// دەقەکانی ڕووکاری سیستەمەکە (کوردی - سۆرانی).
+﻿/// دەقەکانی ڕووکاری سیستەمەکە (کوردی - سۆرانی).
 ///
 /// English: Single place for every user facing string. The app is Kurdish
 /// (Sorani / `ckb`) first, but keeping all labels here makes it possible to add
@@ -295,4 +295,21 @@ class AppStrings {
       '١. لە وێبگەڕی Chrome دەست بنێ بە سێ خاڵەکەی سەرەوە (⋮).\n'
       '٢. کلیک بکە لەسەر "Install app" یان "Add to Home screen".\n'
       '٣. پشتڕاستی بکەرەوە تا وەک ئەپی فەرمی و بەبێ شریتی وێب کاربکات!';
+
+  // Shift Management
+  static const String shift = 'شەفت';
+  static const String openShift = 'کردنەوەی شەفت';
+  static const String closeShift = 'داخستنی شەفت';
+  static const String startingCash = 'پارەی سەرەتای قاسە';
+  static const String actualCash = 'پارەی ناو قاسە';
+  static const String expectedCash = 'پارەی پێشبینیکراو';
+  static const String shiftDifference = 'کەموکوڕی (جیاوازی)';
+  static const String shiftNote = 'تێبینی شەفت';
+  static const String shiftSummary = 'پوختەی شەفت';
+  static const String printZReport = 'داخستن و پرینتکردنی Z-Report';
+  static const String noOpenShift = 'هیچ شەفتێک نەکراوەتەوە';
+  static const String shiftAlreadyOpen = 'شەفتێک کراوەتەوە لەلایەن:';
+  static const String shiftCashSales = 'فرۆشی نەقد';
+  static const String shiftExpenses = 'خەرجییەکانی شەفت';
+  static const String openedAt = 'کاتی کردنەوە';
 }
