@@ -13,6 +13,7 @@ import '../state/sales_controller.dart';
 import '../state/settings_controller.dart';
 import '../widgets/app_widgets.dart';
 import '../widgets/bar_chart.dart';
+import '../widgets/brand_badge.dart';
 import 'sale_detail_screen.dart';
 
 /// داشبۆرد — کورتەی ئەمڕۆ، هێڵکاری حەفتە، دوایین فرۆشتن و ئاگاداری کۆگا.
@@ -36,6 +37,8 @@ class DashboardScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: <Widget>[
+        _DashboardHeader(storeName: settings.settings.storeName),
+        const SizedBox(height: 16),
         _StatsGrid(
           cards: <Widget>[
             StatCard(
@@ -310,3 +313,84 @@ class _LowStockCard extends StatelessWidget {
     );
   }
 }
+
+class _DashboardHeader extends StatelessWidget {
+  const _DashboardHeader({required this.storeName});
+
+  final String storeName;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final bool isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: isDark
+            ? theme.colorScheme.surfaceContainerHigh
+            : theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+        ),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 16,
+        runSpacing: 12,
+        children: <Widget>[
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.storefront_outlined,
+                  color: AppColors.primary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text(
+                    'بەخێربێیت، $storeName',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.2,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    AppStrings.brandTagline,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const PoweredByRandSuite(),
+        ],
+      ),
+    );
+  }
+}
+

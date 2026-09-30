@@ -7,6 +7,7 @@ import '../state/auth_controller.dart';
 import '../state/cart_controller.dart';
 import '../state/settings_controller.dart';
 import '../widgets/app_widgets.dart';
+import '../widgets/brand_badge.dart';
 import 'dashboard_screen.dart';
 import 'pos/pos_screen.dart';
 import 'products_screen.dart';
@@ -103,21 +104,30 @@ class _AppShellState extends State<AppShell> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        title: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Text(
-              settings.settings.storeName,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            Text(
-              sections[index].label,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
+            if (!wide) ...<Widget>[
+              const RandSuiteLogo(isCompact: true, size: 24),
+              const SizedBox(width: 12),
+            ],
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  settings.settings.storeName,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  sections[index].label,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -145,6 +155,19 @@ class _AppShellState extends State<AppShell> {
               labelType: MediaQuery.sizeOf(context).width >= 1320
                   ? NavigationRailLabelType.none
                   : NavigationRailLabelType.all,
+              leading: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: RandSuiteLogo(isCompact: true, size: 28),
+              ),
+              trailing: const Expanded(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 14),
+                    child: PoweredByRandSuite(),
+                  ),
+                ),
+              ),
               onDestinationSelected: (int value) =>
                   setState(() => _index = value),
               destinations: sections
@@ -190,12 +213,8 @@ class _AppShellState extends State<AppShell> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
-              Icon(
-                Icons.storefront_outlined,
-                size: 32,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              const SizedBox(height: 8),
+              const RandSuiteLogo(isCompact: true, size: 32),
+              const SizedBox(height: 12),
               Text(
                 settings.settings.storeName,
                 style: Theme.of(context)

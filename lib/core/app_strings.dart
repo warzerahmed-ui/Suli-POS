@@ -7,8 +7,12 @@ class AppStrings {
   const AppStrings._();
 
   // ── گشتی (common) ────────────────────────────────────────────────────────
-  static const String appTitle = 'سیستەمی مارکێت';
-  static const String appSubtitle = 'بەڕێوەبردنی فرۆشگا و فرۆشتن';
+  static const String appTitle = 'RAND SUITE POS';
+  static const String appSubtitle = 'سیستەمی پێشکەوتووی بەڕێوەبردنی خاڵی فرۆشتن';
+  static const String brandName = 'RAND SUITE';
+  static const String poweredBy = 'Powered by RAND SUITE';
+  static const String developedBy = 'گەشەپێدراوە لەلایەن RAND SUITE';
+  static const String brandTagline = 'سیستەمی مۆدێرن و خێرای مارکێت و خاڵی فرۆشتن';
   static const String loading = 'چاوەڕوان بە...';
   static const String noData = 'هیچ داتایەک نییە';
   static const String search = 'گەڕان';

@@ -6,6 +6,7 @@ import '../models/store_settings.dart';
 import '../state/app_providers.dart';
 import '../state/settings_controller.dart';
 import '../widgets/app_widgets.dart';
+import '../widgets/brand_badge.dart';
 
 /// شاشەی ڕێکخستنەکان: زانیاری فرۆشگا، دراو، باج، ڕووکار و بەڕێوەبردنی داتا.
 /// English: store profile, money/tax preferences, appearance and data tools.
@@ -249,8 +250,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text('${AppStrings.appTitle} — ${AppStrings.version} 1.0.0'),
-              const SizedBox(height: 6),
+              const RandSuiteLogo(isCompact: true, size: 28),
+              const SizedBox(height: 10),
+              Text(
+                '${AppStrings.appTitle} — ${AppStrings.version} 1.0.0',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                AppStrings.developedBy,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
               Text(
                 AppStrings.storageNote,
                 style: theme.textTheme.bodySmall?.copyWith(
