@@ -63,8 +63,7 @@ class SectionCard extends StatelessWidget {
               ),
             ),
           if (hasHeader && child != null) const Divider(height: 1),
-          if (child != null)
-            Padding(padding: padding, child: child!),
+          if (child != null) Padding(padding: padding, child: child!),
         ],
       ),
     );
@@ -200,10 +199,7 @@ class EmptyState extends StatelessWidget {
                 ),
               ),
             if (action != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: action,
-              ),
+              Padding(padding: const EdgeInsets.only(top: 16), child: action),
           ],
         ),
       ),

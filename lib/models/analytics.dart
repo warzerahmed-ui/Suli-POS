@@ -111,8 +111,10 @@ class ProductPerformance {
       }
     }
     final List<ProductPerformance> result = map.values.toList()
-      ..sort((ProductPerformance a, ProductPerformance b) =>
-          b.quantity.compareTo(a.quantity));
+      ..sort(
+        (ProductPerformance a, ProductPerformance b) =>
+            b.quantity.compareTo(a.quantity),
+      );
     return result.take(limit).toList();
   }
 }
@@ -192,8 +194,10 @@ class CashierPerformance {
       );
     }
     final List<CashierPerformance> result = map.values.toList()
-      ..sort((CashierPerformance a, CashierPerformance b) =>
-          b.revenue.compareTo(a.revenue));
+      ..sort(
+        (CashierPerformance a, CashierPerformance b) =>
+            b.revenue.compareTo(a.revenue),
+      );
     return result;
   }
 }

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 
 import '../core/app_strings.dart';
 import '../core/password_hasher.dart';
@@ -116,8 +116,7 @@ class AuthController extends ChangeNotifier {
     }
     if (target == null) return null;
     final bool removingAdmin = target.isAdmin;
-    final int adminCount =
-        _users.where((AppUser user) => user.isAdmin).length;
+    final int adminCount = _users.where((AppUser user) => user.isAdmin).length;
     if (removingAdmin && adminCount <= 1) return AppStrings.cantDeleteSelf;
     _users = _users.where((AppUser user) => user.id != id).toList();
     _repository.deleteSingleUser(id);

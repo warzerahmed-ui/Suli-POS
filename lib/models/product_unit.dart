@@ -28,7 +28,7 @@ enum ProductUnit {
   bool get allowsFractions => isMeasured;
 
   static ProductUnit fromName(String? name) => ProductUnit.values.firstWhere(
-        (ProductUnit unit) => unit.name == name,
-        orElse: () => ProductUnit.piece,
-      );
+    (ProductUnit unit) => unit.name == name,
+    orElse: () => ProductUnit.piece,
+  );
 }

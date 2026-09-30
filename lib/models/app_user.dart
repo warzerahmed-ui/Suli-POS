@@ -15,9 +15,9 @@ enum UserRole {
   bool get canManage => this == UserRole.admin;
 
   static UserRole fromName(String? name) => UserRole.values.firstWhere(
-        (UserRole role) => role.name == name,
-        orElse: () => UserRole.cashier,
-      );
+    (UserRole role) => role.name == name,
+    orElse: () => UserRole.cashier,
+  );
 }
 
 /// بەکارهێنەری سیستەم (بەڕێوەبەر یان کاشێر).
@@ -35,13 +35,13 @@ class AppUser {
 
   /// بەکارهێنەری سەرەتایی: admin / admin123
   factory AppUser.defaultAdmin() => AppUser(
-        id: 'user-admin',
-        fullName: 'بەڕێوەبەری سیستەم',
-        username: 'admin',
-        passwordHash: PasswordHasher.hash('admin123'),
-        role: UserRole.admin,
-        createdAt: DateTime.now(),
-      );
+    id: 'user-admin',
+    fullName: 'بەڕێوەبەری سیستەم',
+    username: 'admin',
+    passwordHash: PasswordHasher.hash('admin123'),
+    role: UserRole.admin,
+    createdAt: DateTime.now(),
+  );
 
   final String id;
   final String fullName;
@@ -87,24 +87,24 @@ class AppUser {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'id': id,
-        'fullName': fullName,
-        'username': username,
-        'passwordHash': passwordHash,
-        'role': role.name,
-        'isActive': isActive,
-        'createdAt': createdAt?.toIso8601String(),
-      };
+    'id': id,
+    'fullName': fullName,
+    'username': username,
+    'passwordHash': passwordHash,
+    'role': role.name,
+    'isActive': isActive,
+    'createdAt': createdAt?.toIso8601String(),
+  };
 
   factory AppUser.fromJson(Map<String, dynamic> json) => AppUser(
-        id: json['id'] as String,
-        fullName: json['fullName'] as String? ?? '',
-        username: json['username'] as String? ?? '',
-        passwordHash: json['passwordHash'] as String? ?? '',
-        role: UserRole.fromName(json['role'] as String?),
-        isActive: json['isActive'] as bool? ?? true,
-        createdAt: json['createdAt'] == null
-            ? null
-            : DateTime.tryParse(json['createdAt'] as String),
-      );
+    id: json['id'] as String,
+    fullName: json['fullName'] as String? ?? '',
+    username: json['username'] as String? ?? '',
+    passwordHash: json['passwordHash'] as String? ?? '',
+    role: UserRole.fromName(json['role'] as String?),
+    isActive: json['isActive'] as bool? ?? true,
+    createdAt: json['createdAt'] == null
+        ? null
+        : DateTime.tryParse(json['createdAt'] as String),
+  );
 }

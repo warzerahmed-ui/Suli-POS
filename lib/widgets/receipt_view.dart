@@ -7,10 +7,7 @@ import '../models/store_settings.dart';
 
 /// وەسڵی فرۆشتن وەک دەقی سادە (بۆ کۆپیکردن یان چاپکردن).
 /// English: the receipt as plain text — used for copy-to-clipboard / printing.
-String buildReceiptText({
-  required Sale sale,
-  required StoreSettings settings,
-}) {
+String buildReceiptText({required Sale sale, required StoreSettings settings}) {
   final StringBuffer buffer = StringBuffer();
   final String line = '-' * 32;
 
@@ -42,7 +39,9 @@ String buildReceiptText({
   }
 
   buffer.writeln(line);
-  buffer.writeln('${AppStrings.subtotal}: ${receiptMoney(settings, sale.subtotal)}');
+  buffer.writeln(
+    '${AppStrings.subtotal}: ${receiptMoney(settings, sale.subtotal)}',
+  );
   if (sale.safeDiscount > 0) {
     buffer.writeln(
       '${AppStrings.discount}: ${receiptMoney(settings, sale.safeDiscount)}',
@@ -64,7 +63,9 @@ String buildReceiptText({
       '${AppStrings.remainingDebt}: ${receiptMoney(settings, sale.debtAmount)}',
     );
   } else {
-    buffer.writeln('${AppStrings.change}: ${receiptMoney(settings, sale.change)}');
+    buffer.writeln(
+      '${AppStrings.change}: ${receiptMoney(settings, sale.change)}',
+    );
   }
   if (sale.note.trim().isNotEmpty) {
     buffer.writeln('${AppStrings.note}: ${sale.note.trim()}');
@@ -80,19 +81,15 @@ String buildReceiptText({
 
 /// شێوەکردنی بڕی پارە بەپێی ڕێکخستنەکانی فرۆشگا.
 String receiptMoney(StoreSettings settings, num value) => Formatters.money(
-      value,
-      symbol: settings.currencySymbol,
-      decimals: settings.currencyDecimals,
-    );
+  value,
+  symbol: settings.currencySymbol,
+  decimals: settings.currencyDecimals,
+);
 
 /// وەسڵی فرۆشتن وەک ڕووکار (بۆ پیشاندان لە دیالۆگ یان لاپەڕە).
 /// English: printable-looking receipt widget.
 class ReceiptView extends StatelessWidget {
-  const ReceiptView({
-    super.key,
-    required this.sale,
-    required this.settings,
-  });
+  const ReceiptView({super.key, required this.sale, required this.settings});
 
   final Sale sale;
   final StoreSettings settings;
@@ -119,8 +116,10 @@ class ReceiptView extends StatelessWidget {
               if (settings.address.isNotEmpty)
                 Text(settings.address, style: metaStyle),
               if (settings.phone.isNotEmpty)
-                Text('${AppStrings.phone}: ${settings.phone}',
-                    style: metaStyle),
+                Text(
+                  '${AppStrings.phone}: ${settings.phone}',
+                  style: metaStyle,
+                ),
             ],
           ),
         ),
@@ -161,7 +160,9 @@ class ReceiptView extends StatelessWidget {
                     Text(
                       receiptMoney(settings, item.total),
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: item.quantity < 0 ? const Color(0xFFDC2626) : null,
+                        color: item.quantity < 0
+                            ? const Color(0xFFDC2626)
+                            : null,
                         fontWeight: item.quantity < 0 ? FontWeight.bold : null,
                       ),
                     ),
@@ -199,8 +200,8 @@ class ReceiptView extends StatelessWidget {
           bold: true,
           valueColor: sale.items.any((SaleItem i) => i.quantity < 0)
               ? (sale.total > 0
-                  ? const Color(0xFF10B981)
-                  : (sale.total < 0 ? const Color(0xFFF59E0B) : null))
+                    ? const Color(0xFF10B981)
+                    : (sale.total < 0 ? const Color(0xFFF59E0B) : null))
               : null,
         ),
         _totalRow(context, AppStrings.paidAmount, sale.paidAmount),
@@ -210,9 +211,7 @@ class ReceiptView extends StatelessWidget {
             AppStrings.remainingDebt,
             sale.debtAmount,
             bold: sale.debtAmount > 0,
-            valueColor: sale.debtAmount > 0
-                ? theme.colorScheme.error
-                : null,
+            valueColor: sale.debtAmount > 0 ? theme.colorScheme.error : null,
           )
         else
           _totalRow(context, AppStrings.change, sale.change),
@@ -227,8 +226,10 @@ class ReceiptView extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text('پۆینتی بەکارهاتوو لەم پسووڵەیە:', style: metaStyle),
                   const Spacer(),
-                  Text('${sale.pointsUsed} پۆینت',
-                      style: metaStyle.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    '${sale.pointsUsed} پۆینت',
+                    style: metaStyle.copyWith(fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
             ),
@@ -237,14 +238,21 @@ class ReceiptView extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 2),
               child: Row(
                 children: <Widget>[
-                  const Icon(Icons.card_giftcard, size: 14, color: Color(0xFF10B981)),
+                  const Icon(
+                    Icons.card_giftcard,
+                    size: 14,
+                    color: Color(0xFF10B981),
+                  ),
                   const SizedBox(width: 4),
                   Text('پۆینتی بەدەستهاتوو:', style: metaStyle),
                   const Spacer(),
-                  Text('+${sale.pointsEarned} پۆینت ⭐',
-                      style: metaStyle.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: const Color(0xFF10B981))),
+                  Text(
+                    '+${sale.pointsEarned} پۆینت ⭐',
+                    style: metaStyle.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF10B981),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -321,9 +329,7 @@ class ReceiptView extends StatelessWidget {
             fontWeight: FontWeight.w800,
             color: valueColor,
           )
-        : theme.textTheme.bodyMedium?.copyWith(
-            color: valueColor,
-          );
+        : theme.textTheme.bodyMedium?.copyWith(color: valueColor);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(

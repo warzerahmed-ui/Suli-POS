@@ -3,12 +3,14 @@ import 'package:provider/provider.dart';
 
 import 'core/app_strings.dart';
 import 'core/app_theme.dart';
+import 'data/pos_repository.dart';
 import 'screens/app_shell.dart';
 import 'screens/login_screen.dart';
 import 'state/app_providers.dart';
 import 'state/auth_controller.dart';
 import 'state/cart_controller.dart';
 import 'state/customer_controller.dart';
+import 'state/expenses_controller.dart';
 import 'state/inventory_controller.dart';
 import 'state/sales_controller.dart';
 import 'state/settings_controller.dart';
@@ -24,6 +26,7 @@ class PosApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        Provider<PosRepository>.value(value: providers.repository),
         ChangeNotifierProvider<SettingsController>.value(
           value: providers.settings,
         ),
@@ -35,6 +38,9 @@ class PosApp extends StatelessWidget {
         ChangeNotifierProvider<SalesController>.value(value: providers.sales),
         ChangeNotifierProvider<CustomerController>.value(
           value: providers.customer,
+        ),
+        ChangeNotifierProvider<ExpensesController>.value(
+          value: providers.expenses,
         ),
         Provider<AppProviders>.value(value: providers),
       ],

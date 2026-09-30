@@ -1,4 +1,4 @@
-﻿import 'package:flutter/foundation.dart' hide Category;
+import 'package:flutter/foundation.dart' hide Category;
 
 import '../data/pos_repository.dart';
 import '../models/category.dart';

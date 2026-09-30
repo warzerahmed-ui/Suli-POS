@@ -116,8 +116,9 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Category> categories =
-        context.watch<InventoryController>().categoriesWithUncategorized;
+    final List<Category> categories = context
+        .watch<InventoryController>()
+        .categoriesWithUncategorized;
 
     return AlertDialog(
       title: Text(
@@ -140,8 +141,8 @@ class _ProductFormDialogState extends State<_ProductFormDialog> {
                   ),
                   validator: (String? value) =>
                       (value == null || value.trim().isEmpty)
-                          ? AppStrings.required
-                          : null,
+                      ? AppStrings.required
+                      : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(

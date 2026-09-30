@@ -8,11 +8,13 @@ class AppStrings {
 
   // ── گشتی (common) ────────────────────────────────────────────────────────
   static const String appTitle = 'SULI-POS';
-  static const String appSubtitle = 'سیستەمی پێشکەوتووی بەڕێوەبردنی خاڵی فرۆشتن';
+  static const String appSubtitle =
+      'سیستەمی پێشکەوتووی بەڕێوەبردنی خاڵی فرۆشتن';
   static const String brandName = 'SULI-POS';
   static const String poweredBy = 'Powered by RAND SUITE';
   static const String developedBy = 'گەشەپێدراوە لەلایەن RAND SUITE';
-  static const String brandTagline = 'سیستەمی مۆدێرن و خێرای مارکێت و خاڵی فرۆشتن • RAND SUITE';
+  static const String brandTagline =
+      'سیستەمی مۆدێرن و خێرای مارکێت و خاڵی فرۆشتن • RAND SUITE';
   static const String loading = 'چاوەڕوان بە...';
   static const String noData = 'هیچ داتایەک نییە';
   static const String search = 'گەڕان';
@@ -56,7 +58,8 @@ class AppStrings {
   static const String roleCashier = 'کاشێر';
   static const String roleAdminDesc = 'دەستڕاگەیشتنی تەواو بە هەموو بەشەکان';
   static const String roleCashierDesc = 'تەنها فرۆشتن و پسووڵەکان';
-  static const String wrongCredentials = 'ناوی بەکارهێنەر یان وشەی نهێنی بە هەڵەیە';
+  static const String wrongCredentials =
+      'ناوی بەکارهێنەر یان وشەی نهێنی بە هەڵەیە';
   static const String inactiveUser = 'ئەم بەکارهێنەرە ناچالاک کراوە';
   static const String demoCredentials = 'بەکارهێنەری سەرەتا: admin / admin123';
   static const String welcomeBack = 'بەخێربێیتەوە';
@@ -255,7 +258,8 @@ class AppStrings {
 
   // ── بەرنامەی مۆبایل (PWA Install) ───────────────────────────────────────
   static const String installApp = 'دابەزاندنی ئەپ بۆ مۆبایل';
-  static const String installAppDesc = 'بەکارهێنانی سیستەم وەک ئەپێکی سەربەخۆی مۆبایل';
+  static const String installAppDesc =
+      'بەکارهێنانی سیستەم وەک ئەپێکی سەربەخۆی مۆبایل';
   static const String pwaInstallTitle = 'دامەزراندنی SULI-POS لەسەر مۆبایل';
   static const String pwaInstallIosGuide =
       'بۆ ئەوەی سیستەمەکە وەک ئەپێکی ڕەسمی لەسەر ئایفۆن دابەزێت:\n'

@@ -8,9 +8,11 @@ import '../models/sale.dart';
 import 'auth_controller.dart';
 import 'cart_controller.dart';
 import 'customer_controller.dart';
+import 'expenses_controller.dart';
 import 'inventory_controller.dart';
 import 'sales_controller.dart';
 import 'settings_controller.dart';
+import 'shift_controller.dart';
 
 /// کۆکراوەی هەموو کۆنترۆڵەرەکان + دابینکردنی داتای سەرەتایی.
 ///
@@ -18,12 +20,14 @@ import 'settings_controller.dart';
 /// on the very first run and returns every controller wired together.
 class AppProviders {
   AppProviders(this.repository)
-      : settings = SettingsController(repository),
-        auth = AuthController(repository),
-        inventory = InventoryController(repository),
-        cart = CartController(repository),
-        sales = SalesController(repository),
-        customer = CustomerController(repository);
+    : settings = SettingsController(repository),
+      auth = AuthController(repository),
+      inventory = InventoryController(repository),
+      cart = CartController(repository),
+      sales = SalesController(repository),
+      customer = CustomerController(repository),
+      expenses = ExpensesController(repository),
+      shift = ShiftController(repository);
 
   final PosRepository repository;
   final SettingsController settings;
@@ -32,6 +36,8 @@ class AppProviders {
   final CartController cart;
   final SalesController sales;
   final CustomerController customer;
+  final ExpensesController expenses;
+  final ShiftController shift;
 
   static Future<AppProviders> bootstrap() async {
     final LocalStorage storage = await LocalStorage.open();
@@ -100,8 +106,14 @@ class AppProviders {
     await repository.markSeeded();
   }
 
-  List<Object> _notifiers() =>
-      <Object>[settings, auth, inventory, cart, sales, customer];
+  List<Object> _notifiers() => <Object>[
+    settings,
+    auth,
+    inventory,
+    cart,
+    sales,
+    customer,
+  ];
 
   void dispose() {
     for (final Object notifier in _notifiers()) {
@@ -109,3 +121,4 @@ class AppProviders {
     }
   }
 }
+

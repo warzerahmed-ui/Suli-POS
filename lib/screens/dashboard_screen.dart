@@ -8,6 +8,7 @@ import '../models/analytics.dart';
 import '../models/product.dart';
 import '../models/sale.dart';
 import '../state/auth_controller.dart';
+import '../state/expenses_controller.dart';
 import '../state/inventory_controller.dart';
 import '../state/sales_controller.dart';
 import '../state/settings_controller.dart';
@@ -27,9 +28,13 @@ class DashboardScreen extends StatelessWidget {
     final SalesController sales = context.watch<SalesController>();
     final InventoryController inventory = context.watch<InventoryController>();
     final SettingsController settings = context.watch<SettingsController>();
+    final ExpensesController expensesController = context
+        .watch<ExpensesController>();
     final bool isAdmin = context.watch<AuthController>().isAdmin;
 
     final SaleSummary today = sales.todaySummary;
+    final double netProfit = today.profit - expensesController.todayExpenses;
+
     final List<DailyPoint> week = sales.dailyPoints(days: 7);
     final List<Product> lowStock = inventory.lowStockProducts;
     final List<Sale> recent = sales.recent(limit: 5);
@@ -53,16 +58,18 @@ class DashboardScreen extends StatelessWidget {
               value: _compact(today.itemQuantity),
               icon: Icons.shopping_basket_outlined,
               color: StatusColors.info(context),
-              hint: '${AppStrings.averageInvoice}: '
+              hint:
+                  '${AppStrings.averageInvoice}: '
                   '${settings.money(today.averageInvoice)}',
             ),
             if (isAdmin)
               StatCard(
                 title: AppStrings.todayProfit,
-                value: settings.money(today.profit),
+                value: settings.money(netProfit),
                 icon: Icons.trending_up,
                 color: StatusColors.success(context),
-                hint: '${AppStrings.profitMargin}: '
+                hint:
+                    '${AppStrings.profitMargin}: '
                     '${today.profitMargin.toStringAsFixed(1)}%',
               ),
             StatCard(
@@ -80,7 +87,8 @@ class DashboardScreen extends StatelessWidget {
                 value: settings.money(inventory.inventoryValue),
                 icon: Icons.warehouse_outlined,
                 color: AppColors.secondary,
-                hint: '${AppStrings.productCount}: '
+                hint:
+                    '${AppStrings.productCount}: '
                     '${inventory.activeProductCount}',
               ),
             StatCard(
@@ -182,8 +190,9 @@ class _RecentSalesCard extends StatelessWidget {
                 return ListTile(
                   leading: CircleAvatar(
                     radius: 18,
-                    backgroundColor:
-                        theme.colorScheme.primary.withValues(alpha: 0.12),
+                    backgroundColor: theme.colorScheme.primary.withValues(
+                      alpha: 0.12,
+                    ),
                     child: Icon(
                       Icons.receipt_long,
                       size: 18,
@@ -204,10 +213,13 @@ class _RecentSalesCard extends StatelessWidget {
                         const SizedBox(width: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.errorContainer
-                                .withValues(alpha: 0.6),
+                            color: theme.colorScheme.errorContainer.withValues(
+                              alpha: 0.6,
+                            ),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -281,8 +293,11 @@ class _LowStockCard extends StatelessWidget {
                       color: color.withValues(alpha: 0.14),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Icon(Icons.inventory_2_outlined,
-                        size: 18, color: color),
+                    child: Icon(
+                      Icons.inventory_2_outlined,
+                      size: 18,
+                      color: color,
+                    ),
                   ),
                   title: Text(
                     product.name,
@@ -393,4 +408,3 @@ class _DashboardHeader extends StatelessWidget {
     );
   }
 }
-

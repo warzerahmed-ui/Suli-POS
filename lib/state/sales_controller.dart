@@ -58,8 +58,10 @@ class SalesController extends ChangeNotifier {
   List<Sale> todaysSales({DateTime? now}) {
     final DateTime today = now ?? DateTime.now();
     return _sales
-        .where((Sale sale) =>
-            !sale.isVoided && Formatters.isSameDay(sale.createdAt, today))
+        .where(
+          (Sale sale) =>
+              !sale.isVoided && Formatters.isSameDay(sale.createdAt, today),
+        )
         .toList();
   }
 
@@ -147,7 +149,8 @@ class SalesController extends ChangeNotifier {
     int pointsEarned = 0,
   }) {
     final int sequence = _repository.nextInvoiceSequence();
-    final String id = 'INV-${Formatters.isoDate(createdAt).replaceAll('-', '')}'
+    final String id =
+        'INV-${Formatters.isoDate(createdAt).replaceAll('-', '')}'
         '-${sequence.toString().padLeft(4, '0')}';
     return Sale(
       id: id,
@@ -167,7 +170,6 @@ class SalesController extends ChangeNotifier {
       pointsEarned: pointsEarned,
     );
   }
-
 
   /// ئەنجامدانی ئاڵوگۆڕی کاڵا:
   /// کاڵا گەڕاوەکان دەخرێنەوە سەر کۆگا (+).
@@ -206,7 +208,8 @@ class SalesController extends ChangeNotifier {
     ];
 
     final int sequence = _repository.nextInvoiceSequence();
-    final String id = 'EXC-${Formatters.isoDate(createdAt).replaceAll('-', '')}-${sequence.toString().padLeft(4, '0')}';
+    final String id =
+        'EXC-${Formatters.isoDate(createdAt).replaceAll('-', '')}-${sequence.toString().padLeft(4, '0')}';
 
     final Sale sale = Sale(
       id: id,
@@ -235,8 +238,9 @@ class SalesController extends ChangeNotifier {
     final int index = _sales.indexWhere((Sale sale) => sale.id == id);
     if (index < 0) return;
     final Sale sale = _sales[index];
-    final double newPaid =
-        amount != null ? (sale.paidAmount + amount) : sale.total;
+    final double newPaid = amount != null
+        ? (sale.paidAmount + amount)
+        : sale.total;
     _sales = List<Sale>.from(_sales);
     _sales[index] = sale.copyWith(paidAmount: newPaid);
     await _repository.saveSingleSale(_sales[index]);

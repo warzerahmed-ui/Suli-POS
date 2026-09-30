@@ -11,4 +11,3 @@ Future<void> main() async {
   final AppProviders providers = await AppProviders.bootstrap();
   runApp(PosApp(providers: providers));
 }
-

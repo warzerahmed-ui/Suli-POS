@@ -32,10 +32,7 @@ class RandSuiteLogo extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: <Color>[
-            AppColors.primary,
-            Color(0xFF0F766E),
-          ],
+          colors: <Color>[AppColors.primary, Color(0xFF0F766E)],
         ),
         borderRadius: BorderRadius.circular(size * 0.28),
         boxShadow: <BoxShadow>[
@@ -112,10 +109,7 @@ class RandSuiteLogo extends StatelessWidget {
 
 /// نیشاندەری سەرچاوەی گەشەپێدەر "Powered by RAND SUITE".
 class PoweredByRandSuite extends StatelessWidget {
-  const PoweredByRandSuite({
-    super.key,
-    this.light = false,
-  });
+  const PoweredByRandSuite({super.key, this.light = false});
 
   final bool light;
 

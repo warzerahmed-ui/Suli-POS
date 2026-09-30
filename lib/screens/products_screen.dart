@@ -91,14 +91,12 @@ class _ProductsScreenState extends State<ProductsScreen> {
                           FilterChip(
                             label: const Text(AppStrings.allCategories),
                             selected: _categoryId.isEmpty,
-                            onSelected: (_) =>
-                                setState(() => _categoryId = ''),
+                            onSelected: (_) => setState(() => _categoryId = ''),
                           ),
                           const SizedBox(width: 8),
                           ...inventory.categories.map(
                             (Category category) => Padding(
-                              padding:
-                                  const EdgeInsetsDirectional.only(end: 8),
+                              padding: const EdgeInsetsDirectional.only(end: 8),
                               child: FilterChip(
                                 avatar: Icon(
                                   category.icon,
@@ -111,10 +109,9 @@ class _ProductsScreenState extends State<ProductsScreen> {
                                 ),
                                 selected: _categoryId == category.id,
                                 onSelected: (_) => setState(
-                                  () => _categoryId =
-                                      _categoryId == category.id
-                                          ? ''
-                                          : category.id,
+                                  () => _categoryId = _categoryId == category.id
+                                      ? ''
+                                      : category.id,
                                 ),
                               ),
                             ),
@@ -254,16 +251,15 @@ class _ProductTile extends StatelessWidget {
               Text(
                 '${AppStrings.salePrice}: ${settings.money(product.salePrice)}',
               ),
-              Text('${AppStrings.costPrice}: ${settings.money(product.costPrice)}'),
+              Text(
+                '${AppStrings.costPrice}: ${settings.money(product.costPrice)}',
+              ),
               Text(
                 '${AppStrings.stock}: ${Formatters.quantity(product.stock)} '
                 '${product.unit.shortLabel}',
                 style: TextStyle(
-                  color: product.needsReorder
-                      ? theme.colorScheme.error
-                      : null,
-                  fontWeight:
-                      product.needsReorder ? FontWeight.w700 : null,
+                  color: product.needsReorder ? theme.colorScheme.error : null,
+                  fontWeight: product.needsReorder ? FontWeight.w700 : null,
                 ),
               ),
               if (product.barcode.isNotEmpty)
@@ -285,7 +281,9 @@ class _ProductTile extends StatelessWidget {
             ),
             PopupMenuItem<String>(
               value: 'toggle',
-              child: Text(product.isActive ? AppStrings.inactive : AppStrings.active),
+              child: Text(
+                product.isActive ? AppStrings.inactive : AppStrings.active,
+              ),
             ),
             const PopupMenuDivider(),
             PopupMenuItem<String>(
@@ -360,9 +358,9 @@ Future<void> openRestockDialog(BuildContext context, Product product) async {
           child: const Text(AppStrings.cancel),
         ),
         FilledButton(
-          onPressed: () => Navigator.of(dialogContext).pop(
-            double.tryParse(controller.text.trim().replaceAll(',', '')),
-          ),
+          onPressed: () => Navigator.of(
+            dialogContext,
+          ).pop(double.tryParse(controller.text.trim().replaceAll(',', ''))),
           child: const Text(AppStrings.save),
         ),
       ],

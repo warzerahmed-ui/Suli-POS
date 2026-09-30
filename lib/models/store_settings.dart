@@ -64,31 +64,30 @@ class StoreSettings {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'storeName': storeName,
-        'phone': phone,
-        'address': address,
-        'currencySymbol': currencySymbol,
-        'currencyDecimals': currencyDecimals,
-        'taxPercent': taxPercent,
-        'receiptFooter': receiptFooter,
-        'isDarkMode': isDarkMode,
-        'pointsEnabled': pointsEnabled,
-        'pointsPerAmount': pointsPerAmount,
-        'amountPerPoint': amountPerPoint,
-      };
+    'storeName': storeName,
+    'phone': phone,
+    'address': address,
+    'currencySymbol': currencySymbol,
+    'currencyDecimals': currencyDecimals,
+    'taxPercent': taxPercent,
+    'receiptFooter': receiptFooter,
+    'isDarkMode': isDarkMode,
+    'pointsEnabled': pointsEnabled,
+    'pointsPerAmount': pointsPerAmount,
+    'amountPerPoint': amountPerPoint,
+  };
 
   factory StoreSettings.fromJson(Map<String, dynamic> json) => StoreSettings(
-        storeName: json['storeName'] as String? ?? 'مارکێتی نموونە',
-        phone: json['phone'] as String? ?? '',
-        address: json['address'] as String? ?? '',
-        currencySymbol: json['currencySymbol'] as String? ?? 'د.ع',
-        currencyDecimals: (json['currencyDecimals'] as num?)?.toInt() ?? 0,
-        taxPercent: (json['taxPercent'] as num?)?.toDouble() ?? 0,
-        receiptFooter: json['receiptFooter'] as String? ?? '',
-        isDarkMode: json['isDarkMode'] as bool? ?? false,
-        pointsEnabled: json['pointsEnabled'] as bool? ?? true,
-        pointsPerAmount: (json['pointsPerAmount'] as num?)?.toDouble() ?? 1000,
-        amountPerPoint: (json['amountPerPoint'] as num?)?.toDouble() ?? 10,
-      );
+    storeName: json['storeName'] as String? ?? 'مارکێتی نموونە',
+    phone: json['phone'] as String? ?? '',
+    address: json['address'] as String? ?? '',
+    currencySymbol: json['currencySymbol'] as String? ?? 'د.ع',
+    currencyDecimals: (json['currencyDecimals'] as num?)?.toInt() ?? 0,
+    taxPercent: (json['taxPercent'] as num?)?.toDouble() ?? 0,
+    receiptFooter: json['receiptFooter'] as String? ?? '',
+    isDarkMode: json['isDarkMode'] as bool? ?? false,
+    pointsEnabled: json['pointsEnabled'] as bool? ?? true,
+    pointsPerAmount: (json['pointsPerAmount'] as num?)?.toDouble() ?? 1000,
+    amountPerPoint: (json['amountPerPoint'] as num?)?.toDouble() ?? 10,
+  );
 }
-

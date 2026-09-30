@@ -67,22 +67,22 @@ class CartItem {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'productId': productId,
-        'name': name,
-        'unit': unit.name,
-        'unitPrice': unitPrice,
-        'unitCost': unitCost,
-        'quantity': quantity,
-        'availableStock': availableStock,
-      };
+    'productId': productId,
+    'name': name,
+    'unit': unit.name,
+    'unitPrice': unitPrice,
+    'unitCost': unitCost,
+    'quantity': quantity,
+    'availableStock': availableStock,
+  };
 
   factory CartItem.fromJson(Map<String, dynamic> json) => CartItem(
-        productId: json['productId'] as String,
-        name: json['name'] as String? ?? '',
-        unit: ProductUnit.fromName(json['unit'] as String?),
-        unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0,
-        unitCost: (json['unitCost'] as num?)?.toDouble() ?? 0,
-        quantity: (json['quantity'] as num?)?.toDouble() ?? 1,
-        availableStock: (json['availableStock'] as num?)?.toDouble() ?? 0,
-      );
+    productId: json['productId'] as String,
+    name: json['name'] as String? ?? '',
+    unit: ProductUnit.fromName(json['unit'] as String?),
+    unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0,
+    unitCost: (json['unitCost'] as num?)?.toDouble() ?? 0,
+    quantity: (json['quantity'] as num?)?.toDouble() ?? 1,
+    availableStock: (json['availableStock'] as num?)?.toDouble() ?? 0,
+  );
 }

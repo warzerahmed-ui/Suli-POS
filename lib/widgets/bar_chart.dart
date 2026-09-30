@@ -40,8 +40,9 @@ class SimpleBarChart extends StatelessWidget {
     final ThemeData theme = Theme.of(context);
     final Color primary = primaryColor ?? theme.colorScheme.primary;
     final Color secondary = secondaryColor ?? theme.colorScheme.secondary;
-    final bool hasSecondary =
-        points.any((BarChartPoint point) => (point.secondary ?? 0) > 0);
+    final bool hasSecondary = points.any(
+      (BarChartPoint point) => (point.secondary ?? 0) > 0,
+    );
 
     double maxValue = 0;
     for (final BarChartPoint point in points) {
@@ -132,8 +133,9 @@ class SimpleBarChart extends StatelessWidget {
     required double maxValue,
     required Color color,
   }) {
-    final double factor =
-        maxValue <= 0 ? 0 : (value / maxValue).clamp(0.0, 1.0).toDouble();
+    final double factor = maxValue <= 0
+        ? 0
+        : (value / maxValue).clamp(0.0, 1.0).toDouble();
     return Align(
       alignment: Alignment.bottomCenter,
       child: FractionallySizedBox(

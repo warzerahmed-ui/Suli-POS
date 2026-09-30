@@ -223,8 +223,9 @@ class _QtyButton extends StatelessWidget {
         visualDensity: VisualDensity.compact,
         onPressed: onPressed,
         style: IconButton.styleFrom(
-          backgroundColor:
-              Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+          backgroundColor: Theme.of(
+            context,
+          ).colorScheme.primary.withValues(alpha: 0.1),
         ),
         icon: Icon(icon, size: 16),
       ),
@@ -246,14 +247,22 @@ class _TotalsArea extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: <Widget>[
-          _summaryRow(context, AppStrings.subtotal, settings.money(cart.subtotal)),
+          _summaryRow(
+            context,
+            AppStrings.subtotal,
+            settings.money(cart.subtotal),
+          ),
           InkWell(
             onTap: () => editDiscount(context),
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 children: <Widget>[
-                  Icon(Icons.percent, size: 16, color: theme.colorScheme.primary),
+                  Icon(
+                    Icons.percent,
+                    size: 16,
+                    color: theme.colorScheme.primary,
+                  ),
                   const SizedBox(width: 6),
                   Text(AppStrings.discount, style: theme.textTheme.bodyMedium),
                   const Spacer(),
@@ -322,8 +331,9 @@ class _TotalsArea extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
-              onPressed:
-                  cart.isEmpty ? null : () => showCheckoutDialog(context),
+              onPressed: cart.isEmpty
+                  ? null
+                  : () => showCheckoutDialog(context),
               icon: const Icon(Icons.point_of_sale),
               label: const Text(AppStrings.checkout),
             ),

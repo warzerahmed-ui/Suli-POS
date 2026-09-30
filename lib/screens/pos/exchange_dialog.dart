@@ -61,7 +61,8 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
   final List<_ExchangeItemRow> _newItems = <_ExchangeItemRow>[];
 
   final TextEditingController _customerNameController = TextEditingController();
-  final TextEditingController _customerPhoneController = TextEditingController();
+  final TextEditingController _customerPhoneController =
+      TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _paidController = TextEditingController();
 
@@ -105,14 +106,14 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
   }
 
   double get _returnedTotal => _returnedItems.fold<double>(
-        0,
-        (double sum, _ExchangeItemRow item) => sum + item.total,
-      );
+    0,
+    (double sum, _ExchangeItemRow item) => sum + item.total,
+  );
 
   double get _newTotal => _newItems.fold<double>(
-        0,
-        (double sum, _ExchangeItemRow item) => sum + item.total,
-      );
+    0,
+    (double sum, _ExchangeItemRow item) => sum + item.total,
+  );
 
   /// ساقی و باقی: ئەگەر ئەرێنی بێت کڕیار دەبێت بیبات، ئەگەر نەرێنی بێت دەگەڕێتەوە بۆ کڕیار
   double get _balanceDue => _newTotal - _returnedTotal;
@@ -128,8 +129,9 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
 
   void _addReturnedProduct(Product product) {
     setState(() {
-      final int idx = _returnedItems
-          .indexWhere((_ExchangeItemRow r) => r.product.id == product.id);
+      final int idx = _returnedItems.indexWhere(
+        (_ExchangeItemRow r) => r.product.id == product.id,
+      );
       if (idx >= 0) {
         _returnedItems[idx].quantity += 1;
       } else {
@@ -148,8 +150,9 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
 
   void _addNewProduct(Product product) {
     setState(() {
-      final int idx = _newItems
-          .indexWhere((_ExchangeItemRow r) => r.product.id == product.id);
+      final int idx = _newItems.indexWhere(
+        (_ExchangeItemRow r) => r.product.id == product.id,
+      );
       if (idx >= 0) {
         _newItems[idx].quantity += 1;
       } else {
@@ -168,7 +171,9 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
 
   Future<void> _submitExchange() async {
     if (_returnedItems.isEmpty && _newItems.isEmpty) {
-      setState(() => _errorMessage = 'تکایە لانیکەم کاڵایەک بۆ ئاڵوگۆڕ دیاری بکە');
+      setState(
+        () => _errorMessage = 'تکایە لانیکەم کاڵایەک بۆ ئاڵوگۆڕ دیاری بکە',
+      );
       return;
     }
 
@@ -192,7 +197,7 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
 
     final double paid =
         double.tryParse(_paidController.text.trim().replaceAll(',', '')) ??
-            (_balanceDue > 0 ? _balanceDue : 0);
+        (_balanceDue > 0 ? _balanceDue : 0);
 
     setState(() {
       _submitting = true;
@@ -276,8 +281,12 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                color: theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.5,
+                ),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
               ),
               child: Row(
                 children: <Widget>[
@@ -328,12 +337,17 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
                 color: theme.colorScheme.errorContainer,
                 child: Row(
                   children: <Widget>[
-                    Icon(Icons.error_outline, color: theme.colorScheme.onErrorContainer),
+                    Icon(
+                      Icons.error_outline,
+                      color: theme.colorScheme.onErrorContainer,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         _errorMessage!,
-                        style: TextStyle(color: theme.colorScheme.onErrorContainer),
+                        style: TextStyle(
+                          color: theme.colorScheme.onErrorContainer,
+                        ),
                       ),
                     ),
                   ],
@@ -434,14 +448,19 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
               child: Row(
                 children: <Widget>[
                   TextButton(
-                    onPressed: _submitting ? null : () => Navigator.of(context).pop(),
+                    onPressed: _submitting
+                        ? null
+                        : () => Navigator.of(context).pop(),
                     child: const Text(AppStrings.cancel),
                   ),
                   const Spacer(),
                   FilledButton.icon(
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                     ),
                     onPressed: _submitting ? null : _submitExchange,
                     icon: _submitting
@@ -455,7 +474,9 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
                           )
                         : const Icon(Icons.check_circle_outline),
                     label: Text(
-                      _submitting ? 'پاشەکەوت دەکرێت...' : AppStrings.completeExchange,
+                      _submitting
+                          ? 'پاشەکەوت دەکرێت...'
+                          : AppStrings.completeExchange,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -481,7 +502,10 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
     required void Function(Product) onAddProduct,
   }) {
     final ThemeData theme = Theme.of(context);
-    final double total = items.fold<double>(0, (double s, _ExchangeItemRow i) => s + i.total);
+    final double total = items.fold<double>(
+      0,
+      (double s, _ExchangeItemRow i) => s + i.total,
+    );
 
     return Card(
       shape: RoundedRectangleBorder(
@@ -499,7 +523,9 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
                   radius: 14,
                   backgroundColor: accentColor.withValues(alpha: 0.15),
                   child: Icon(
-                    isReturn ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+                    isReturn
+                        ? Icons.arrow_downward_rounded
+                        : Icons.arrow_upward_rounded,
                     color: accentColor,
                     size: 16,
                   ),
@@ -544,7 +570,9 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
                             ? Icons.assignment_return_outlined
                             : Icons.add_shopping_cart_outlined,
                         size: 32,
-                        color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                        color: theme.colorScheme.onSurfaceVariant.withValues(
+                          alpha: 0.5,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       Text(
@@ -577,7 +605,9 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
                           children: <Widget>[
                             Text(
                               row.product.name,
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                             Text(
                               '${settings.money(row.unitPrice)} • کۆگا: ${Formatters.quantity(row.product.stock)}',
@@ -679,13 +709,15 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
 
     final IconData icon = customerOwes
         ? Icons.call_made_rounded
-        : (storeRefunds ? Icons.call_received_rounded : Icons.check_circle_rounded);
+        : (storeRefunds
+              ? Icons.call_received_rounded
+              : Icons.check_circle_rounded);
 
     final String statusText = customerOwes
         ? 'ساقی و باقی: کڕیار دەبێت جیاوازی بدات (+)'
         : (storeRefunds
-            ? 'ساقی و باقی: ئەم بڕە دەگەڕێتەوە بۆ کڕیار لە قاسەی دەست (-)'
-            : 'ساقی و باقی: یەکسانە و هیچ بڕە پارەیەک نادرێت');
+              ? 'ساقی و باقی: ئەم بڕە دەگەڕێتەوە بۆ کڕیار لە قاسەی دەست (-)'
+              : 'ساقی و باقی: یەکسانە و هیچ بڕە پارەیەک نادرێت');
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -743,7 +775,8 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
                   label: const Text('نەقد (Cash)'),
                   selected: _paymentMethod == PaymentMethod.cash,
                   onSelected: (bool sel) {
-                    if (sel) setState(() => _paymentMethod = PaymentMethod.cash);
+                    if (sel)
+                      setState(() => _paymentMethod = PaymentMethod.cash);
                   },
                 ),
                 const SizedBox(width: 6),
@@ -751,7 +784,8 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
                   label: const Text('کارت (Card)'),
                   selected: _paymentMethod == PaymentMethod.card,
                   onSelected: (bool sel) {
-                    if (sel) setState(() => _paymentMethod = PaymentMethod.card);
+                    if (sel)
+                      setState(() => _paymentMethod = PaymentMethod.card);
                   },
                 ),
                 const SizedBox(width: 6),
@@ -759,7 +793,8 @@ class _ExchangeDialogState extends State<_ExchangeDialog> {
                   label: const Text('قەرز (Credit)'),
                   selected: _paymentMethod == PaymentMethod.credit,
                   onSelected: (bool sel) {
-                    if (sel) setState(() => _paymentMethod = PaymentMethod.credit);
+                    if (sel)
+                      setState(() => _paymentMethod = PaymentMethod.credit);
                   },
                 ),
                 const Spacer(),
@@ -845,7 +880,8 @@ class _ProductPickerButton extends StatelessWidget {
       onPressed: () async {
         final Product? picked = await showDialog<Product>(
           context: context,
-          builder: (BuildContext ctx) => _ProductSearchDialog(inventory: inventory),
+          builder: (BuildContext ctx) =>
+              _ProductSearchDialog(inventory: inventory),
         );
         if (picked != null) {
           onSelected(picked);
@@ -905,7 +941,10 @@ class _ProductSearchDialogState extends State<_ProductSearchDialog> {
                       itemBuilder: (BuildContext ctx, int i) {
                         final Product p = list[i];
                         return ListTile(
-                          title: Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold)),
+                          title: Text(
+                            p.name,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
                           subtitle: Text(
                             'بارکۆد: ${p.barcode.isEmpty ? "نییە" : p.barcode} • کۆگا: ${Formatters.quantity(p.stock)}',
                           ),

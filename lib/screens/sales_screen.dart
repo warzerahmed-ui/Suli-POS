@@ -83,7 +83,8 @@ class _SalesScreenState extends State<SalesScreen> {
       context: context,
       firstDate: DateTime(now.year - 3),
       lastDate: DateTime(now.year + 1),
-      initialDateRange: _customRange ??
+      initialDateRange:
+          _customRange ??
           DateTimeRange(start: now.subtract(const Duration(days: 7)), end: now),
     );
     if (picked == null) return;
@@ -100,13 +101,16 @@ class _SalesScreenState extends State<SalesScreen> {
     final bool isAdmin = context.watch<AuthController>().isAdmin;
 
     final DateTimeRange range = _range;
-    final List<Sale> inRange =
-        sales.salesInRange(range.start, range.end, includeVoided: true);
+    final List<Sale> inRange = sales.salesInRange(
+      range.start,
+      range.end,
+      includeVoided: true,
+    );
     final List<Sale> methodFiltered = _paymentMethodFilter == null
         ? inRange
         : inRange
-            .where((Sale s) => s.paymentMethod == _paymentMethodFilter)
-            .toList();
+              .where((Sale s) => s.paymentMethod == _paymentMethodFilter)
+              .toList();
     final List<Sale> filtered = sales.search(_query, source: methodFiltered);
     final SaleSummary summary = sales.summaryOf(inRange);
 
@@ -136,7 +140,7 @@ class _SalesScreenState extends State<SalesScreen> {
                     label: Text(
                       _preset == _RangePreset.custom
                           ? '${Formatters.date(range.start)} — '
-                              '${Formatters.date(range.end)}'
+                                '${Formatters.date(range.end)}'
                           : AppStrings.dateRange,
                     ),
                   ),
@@ -147,16 +151,16 @@ class _SalesScreenState extends State<SalesScreen> {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: _RangePreset.values
-                      .where((_RangePreset preset) =>
-                          preset != _RangePreset.custom)
+                      .where(
+                        (_RangePreset preset) => preset != _RangePreset.custom,
+                      )
                       .map(
                         (_RangePreset preset) => Padding(
                           padding: const EdgeInsetsDirectional.only(end: 8),
                           child: ChoiceChip(
                             label: Text(_presetLabel(preset)),
                             selected: _preset == preset,
-                            onSelected: (_) =>
-                                setState(() => _preset = preset),
+                            onSelected: (_) => setState(() => _preset = preset),
                           ),
                         ),
                       )
@@ -183,8 +187,10 @@ class _SalesScreenState extends State<SalesScreen> {
                         child: FilterChip(
                           label: Text(method.label),
                           selected: _paymentMethodFilter == method,
-                          onSelected: (bool selected) => setState(() =>
-                              _paymentMethodFilter = selected ? method : null),
+                          onSelected: (bool selected) => setState(
+                            () =>
+                                _paymentMethodFilter = selected ? method : null,
+                          ),
                         ),
                       ),
                     ),
@@ -278,18 +284,20 @@ class _SaleTile extends StatelessWidget {
           backgroundColor: sale.isVoided
               ? theme.colorScheme.errorContainer
               : (sale.isCredit && sale.debtAmount > 0)
-                  ? StatusColors.warning(context).withValues(alpha: 0.15)
-                  : theme.colorScheme.primary.withValues(alpha: 0.12),
+              ? StatusColors.warning(context).withValues(alpha: 0.15)
+              : theme.colorScheme.primary.withValues(alpha: 0.12),
           child: Icon(
             sale.isVoided
                 ? Icons.undo
-                : (sale.isCredit ? Icons.assignment_outlined : Icons.receipt_long),
+                : (sale.isCredit
+                      ? Icons.assignment_outlined
+                      : Icons.receipt_long),
             size: 20,
             color: sale.isVoided
                 ? theme.colorScheme.onErrorContainer
                 : (sale.isCredit && sale.debtAmount > 0)
-                    ? StatusColors.warning(context)
-                    : theme.colorScheme.primary,
+                ? StatusColors.warning(context)
+                : theme.colorScheme.primary,
           ),
         ),
         title: Row(
@@ -319,10 +327,11 @@ class _SaleTile extends StatelessWidget {
                         ? StatusColors.warning(context)
                         : StatusColors.success(context),
                   ),
-                  backgroundColor: (sale.debtAmount > 0
-                          ? StatusColors.warning(context)
-                          : StatusColors.success(context))
-                      .withValues(alpha: 0.15),
+                  backgroundColor:
+                      (sale.debtAmount > 0
+                              ? StatusColors.warning(context)
+                              : StatusColors.success(context))
+                          .withValues(alpha: 0.15),
                   side: BorderSide.none,
                   visualDensity: VisualDensity.compact,
                 ),

@@ -12,6 +12,7 @@ import '../../widgets/app_widgets.dart';
 import 'cart_panel.dart';
 import 'exchange_dialog.dart';
 import 'product_tile.dart';
+import 'mobile_scanner_screen.dart';
 
 /// شاشەی فرۆشتن (POS): گەڕان/بارکۆد، تۆڕی کاڵاکان و سەبەتە.
 /// English: the point-of-sale screen. On wide screens the cart sits next to the
@@ -133,10 +134,36 @@ class _PosScreenState extends State<PosScreen> {
           const SizedBox(width: 12),
           Padding(
             padding: const EdgeInsets.only(top: 2),
+            child: IconButton.filledTonal(
+              onPressed: () async {
+                final result = await Navigator.push<String>(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MobileScannerScreen(),
+                  ),
+                );
+                if (result != null && result.isNotEmpty) {
+                  _searchController.text = result;
+                  _onSubmitted(result);
+                }
+              },
+              icon: const Icon(Icons.qr_code_scanner),
+              tooltip: 'سکانکردنی بارکۆد بە کامێرا',
+              padding: const EdgeInsets.all(14),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
             child: FilledButton.tonalIcon(
               style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: () => showExchangeDialog(context),
               icon: const Icon(Icons.swap_horiz_rounded),
@@ -181,8 +208,9 @@ class _PosScreenState extends State<PosScreen> {
                 ),
                 selected: _categoryId == category.id,
                 onSelected: (_) => setState(
-                  () => _categoryId =
-                      _categoryId == category.id ? '' : category.id,
+                  () => _categoryId = _categoryId == category.id
+                      ? ''
+                      : category.id,
                 ),
               ),
             ),
@@ -232,10 +260,8 @@ class _PosScreenState extends State<PosScreen> {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (BuildContext sheetContext) => const FractionallySizedBox(
-        heightFactor: 0.9,
-        child: CartPanel(),
-      ),
+      builder: (BuildContext sheetContext) =>
+          const FractionallySizedBox(heightFactor: 0.9, child: CartPanel()),
     );
   }
 }

@@ -260,7 +260,9 @@ class _CustomerTile extends StatelessWidget {
                           const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.amber.shade50,
                               borderRadius: BorderRadius.circular(12),
@@ -269,8 +271,11 @@ class _CustomerTile extends StatelessWidget {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: <Widget>[
-                                const Icon(Icons.star,
-                                    size: 14, color: Colors.amber),
+                                const Icon(
+                                  Icons.star,
+                                  size: 14,
+                                  color: Colors.amber,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   '${customer.points} پۆینت',
@@ -288,9 +293,11 @@ class _CustomerTile extends StatelessWidget {
                       const SizedBox(height: 4),
                       Row(
                         children: <Widget>[
-                          Icon(Icons.phone_outlined,
-                              size: 14,
-                              color: theme.colorScheme.onSurfaceVariant),
+                          Icon(
+                            Icons.phone_outlined,
+                            size: 14,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             customer.phone.isNotEmpty
@@ -325,40 +332,46 @@ class _CustomerTile extends StatelessWidget {
                       }
                     }
                   },
-                  itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                    const PopupMenuItem<String>(
-                      value: 'points',
-                      child: Row(
-                        children: <Widget>[
-                          Icon(Icons.stars, color: Colors.amber, size: 20),
-                          SizedBox(width: 8),
-                          Text('دەستکاریکردنی پۆینت'),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'edit',
-                      child: Row(
-                        children: <Widget>[
-                          Icon(Icons.edit_outlined, size: 20),
-                          SizedBox(width: 8),
-                          Text(AppStrings.edit),
-                        ],
-                      ),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'delete',
-                      child: Row(
-                        children: <Widget>[
-                          Icon(Icons.delete_outline,
-                              color: Colors.red, size: 20),
-                          SizedBox(width: 8),
-                          Text(AppStrings.delete,
-                              style: TextStyle(color: Colors.red)),
-                        ],
-                      ),
-                    ),
-                  ],
+                  itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry<String>>[
+                        const PopupMenuItem<String>(
+                          value: 'points',
+                          child: Row(
+                            children: <Widget>[
+                              Icon(Icons.stars, color: Colors.amber, size: 20),
+                              SizedBox(width: 8),
+                              Text('دەستکاریکردنی پۆینت'),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'edit',
+                          child: Row(
+                            children: <Widget>[
+                              Icon(Icons.edit_outlined, size: 20),
+                              SizedBox(width: 8),
+                              Text(AppStrings.edit),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem<String>(
+                          value: 'delete',
+                          child: Row(
+                            children: <Widget>[
+                              Icon(
+                                Icons.delete_outline,
+                                color: Colors.red,
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                AppStrings.delete,
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                 ),
               ],
             ),
@@ -464,10 +477,10 @@ class _CustomerTile extends StatelessWidget {
                     if (pts <= 0) return;
                     final int delta = isAdd ? pts : -pts;
                     await ctx.read<CustomerController>().manualAdjustPoints(
-                          customer.id,
-                          delta,
-                          reason: reasonController.text.trim(),
-                        );
+                      customer.id,
+                      delta,
+                      reason: reasonController.text.trim(),
+                    );
                     if (ctx.mounted) Navigator.of(ctx).pop();
                   },
                   child: const Text('پاشەکەوتکردن'),
@@ -486,12 +499,15 @@ Future<void> openCustomerForm(BuildContext context, {Customer? initial}) async {
   final CustomerController controller = context.read<CustomerController>();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
-  final TextEditingController nameController =
-      TextEditingController(text: initial?.name ?? '');
-  final TextEditingController phoneController =
-      TextEditingController(text: initial?.phone ?? '');
-  final TextEditingController noteController =
-      TextEditingController(text: initial?.note ?? '');
+  final TextEditingController nameController = TextEditingController(
+    text: initial?.name ?? '',
+  );
+  final TextEditingController phoneController = TextEditingController(
+    text: initial?.phone ?? '',
+  );
+  final TextEditingController noteController = TextEditingController(
+    text: initial?.note ?? '',
+  );
 
   await showDialog<void>(
     context: context,

@@ -41,7 +41,8 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
   final TextEditingController _paidController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _customerNameController = TextEditingController();
-  final TextEditingController _customerPhoneController = TextEditingController();
+  final TextEditingController _customerPhoneController =
+      TextEditingController();
   final TextEditingController _pointsController = TextEditingController();
 
   PaymentMethod _method = PaymentMethod.cash;
@@ -58,8 +59,9 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
     super.didChangeDependencies();
     if (!_initialised) {
       _initialised = true;
-      _paidController.text =
-          Formatters.number(context.read<CartController>().total);
+      _paidController.text = Formatters.number(
+        context.read<CartController>().total,
+      );
     }
   }
 
@@ -76,7 +78,8 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
   double get _cartTotal => context.read<CartController>().total;
 
   double get _pointsDiscount {
-    if (!_usePoints || _matchedCustomer == null || _pointsToRedeem <= 0) return 0;
+    if (!_usePoints || _matchedCustomer == null || _pointsToRedeem <= 0)
+      return 0;
     final SettingsController settings = context.read<SettingsController>();
     return _pointsToRedeem * settings.settings.amountPerPoint;
   }
@@ -94,7 +97,8 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
 
   int _calculatePotentialEarnedPoints() {
     final SettingsController settings = context.read<SettingsController>();
-    if (!settings.settings.pointsEnabled || settings.settings.pointsPerAmount <= 0) {
+    if (!settings.settings.pointsEnabled ||
+        settings.settings.pointsPerAmount <= 0) {
       return 0;
     }
     return (_payableTotal / settings.settings.pointsPerAmount).floor();
@@ -143,9 +147,12 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
   void _clampPoints(Customer customer) {
     final SettingsController settings = context.read<SettingsController>();
     final double appPerPt = settings.settings.amountPerPoint;
-    final int maxByBill =
-        appPerPt > 0 ? (_cartTotal / appPerPt).floor() : customer.points;
-    final int maxAllowed = customer.points < maxByBill ? customer.points : maxByBill;
+    final int maxByBill = appPerPt > 0
+        ? (_cartTotal / appPerPt).floor()
+        : customer.points;
+    final int maxAllowed = customer.points < maxByBill
+        ? customer.points
+        : maxByBill;
 
     if (_pointsToRedeem > maxAllowed) {
       _pointsToRedeem = maxAllowed;
@@ -163,8 +170,9 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
         final int maxByBill = appPerPt > 0
             ? (_cartTotal / appPerPt).floor()
             : _matchedCustomer!.points;
-        _pointsToRedeem =
-            _matchedCustomer!.points < maxByBill ? _matchedCustomer!.points : maxByBill;
+        _pointsToRedeem = _matchedCustomer!.points < maxByBill
+            ? _matchedCustomer!.points
+            : maxByBill;
         _pointsController.text = _pointsToRedeem.toString();
       } else {
         _pointsToRedeem = 0;
@@ -189,8 +197,7 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
         String filter = '';
         return StatefulBuilder(
           builder: (BuildContext ctx, StateSetter setModalState) {
-            final List<Customer> filtered =
-                custCtrl.search(filter);
+            final List<Customer> filtered = custCtrl.search(filter);
             return AlertDialog(
               title: const Text('دیاریکردنی کڕیار'),
               content: SizedBox(
@@ -212,20 +219,28 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
                           ? const Center(child: Text('هیچ کڕیارێک نەدۆزرایەوە'))
                           : ListView.separated(
                               itemCount: filtered.length,
-                              separatorBuilder: (_, _) => const Divider(height: 1),
+                              separatorBuilder: (_, _) =>
+                                  const Divider(height: 1),
                               itemBuilder: (BuildContext _, int i) {
                                 final Customer c = filtered[i];
                                 return ListTile(
                                   leading: CircleAvatar(
                                     backgroundColor: Colors.amber.shade100,
-                                    child: const Icon(Icons.star,
-                                        color: Colors.amber, size: 20),
+                                    child: const Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                      size: 20,
+                                    ),
                                   ),
-                                  title: Text(c.name,
-                                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  subtitle: Text(c.phone.isNotEmpty
-                                      ? c.phone
-                                      : 'بێ ژمارە'),
+                                  title: Text(
+                                    c.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    c.phone.isNotEmpty ? c.phone : 'بێ ژمارە',
+                                  ),
                                   trailing: Chip(
                                     backgroundColor: Colors.amber.shade50,
                                     label: Text(
@@ -268,7 +283,8 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
     final CartController cart = context.read<CartController>();
     final SalesController sales = context.read<SalesController>();
     final InventoryController inventory = context.read<InventoryController>();
-    final CustomerController customerController = context.read<CustomerController>();
+    final CustomerController customerController = context
+        .read<CustomerController>();
     final SettingsController settings = context.read<SettingsController>();
     final AppUser? cashier = context.read<AuthController>().currentUser;
     if (cashier == null) return;
@@ -463,7 +479,9 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                  color: theme.colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.3,
+                  ),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: _matchedCustomer != null
@@ -528,7 +546,10 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
                     if (_matchedCustomer != null) ...<Widget>[
                       const SizedBox(height: 10),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.amber.shade50,
                           borderRadius: BorderRadius.circular(8),
@@ -539,7 +560,11 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
                           children: <Widget>[
                             Row(
                               children: <Widget>[
-                                const Icon(Icons.star, color: Colors.amber, size: 18),
+                                const Icon(
+                                  Icons.star,
+                                  color: Colors.amber,
+                                  size: 18,
+                                ),
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: Text(
@@ -588,7 +613,8 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
                                           border: OutlineInputBorder(),
                                         ),
                                         onChanged: (String val) {
-                                          final int pts = int.tryParse(val) ?? 0;
+                                          final int pts =
+                                              int.tryParse(val) ?? 0;
                                           setState(() {
                                             _pointsToRedeem = pts;
                                             if (_matchedCustomer != null) {
@@ -617,11 +643,16 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
                       ),
                     ],
 
-                    if (settings.settings.pointsEnabled && potentialPoints > 0) ...<Widget>[
+                    if (settings.settings.pointsEnabled &&
+                        potentialPoints > 0) ...<Widget>[
                       const SizedBox(height: 6),
                       Row(
                         children: <Widget>[
-                          const Icon(Icons.card_giftcard, size: 16, color: Colors.green),
+                          const Icon(
+                            Icons.card_giftcard,
+                            size: 16,
+                            color: Colors.green,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             'پۆینتی بەدەستهاتوو دوای ئەم کڕینە: +$potentialPoints پۆینت',
@@ -661,18 +692,26 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
                     if (_payableTotal > 0)
                       ActionChip(
                         label: Text(
-                            'نیوەی (${Formatters.number((_payableTotal / 2).roundToDouble())})'),
-                        onPressed: () => setState(() => _paidController.text =
-                            Formatters.number((_payableTotal / 2).roundToDouble())),
+                          'نیوەی (${Formatters.number((_payableTotal / 2).roundToDouble())})',
+                        ),
+                        onPressed: () => setState(
+                          () => _paidController.text = Formatters.number(
+                            (_payableTotal / 2).roundToDouble(),
+                          ),
+                        ),
                       ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.errorContainer.withValues(alpha: 0.5),
+                    color: theme.colorScheme.errorContainer.withValues(
+                      alpha: 0.5,
+                    ),
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: theme.colorScheme.error.withValues(alpha: 0.3),
@@ -680,8 +719,11 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
                   ),
                   child: Row(
                     children: <Widget>[
-                      Icon(Icons.account_balance_wallet_outlined,
-                          size: 20, color: theme.colorScheme.error),
+                      Icon(
+                        Icons.account_balance_wallet_outlined,
+                        size: 20,
+                        color: theme.colorScheme.error,
+                      ),
                       const SizedBox(width: 8),
                       Text(
                         AppStrings.remainingDebt,
@@ -721,8 +763,11 @@ class _CheckoutDialogState extends State<_CheckoutDialog> {
                   children: <Widget>[
                     ActionChip(
                       label: const Text(AppStrings.exactAmount),
-                      onPressed: () => setState(() => _paidController.text =
-                          Formatters.number(_payableTotal)),
+                      onPressed: () => setState(
+                        () => _paidController.text = Formatters.number(
+                          _payableTotal,
+                        ),
+                      ),
                     ),
                     ..._roundAmounts(_payableTotal).map(
                       (double value) => ActionChip(

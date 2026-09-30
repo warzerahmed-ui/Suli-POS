@@ -8,6 +8,8 @@ import '../models/held_cart.dart';
 import '../models/product.dart';
 import '../models/sale.dart';
 import '../models/store_settings.dart';
+import '../models/shift.dart';
+import '../models/expense.dart';
 import 'demo_data.dart';
 import 'firestore_service.dart';
 import 'local_storage.dart';
@@ -1009,4 +1011,53 @@ class PosRepository {
       debugPrint('PosRepository._touchSyncMetadata error: $e');
     }
   }
+
+
+  // --- Expenses ---
+  List<Expense> loadExpenses() {
+    final list = _storage.readList(LocalStorage.expensesKey);
+    return list.map((e) => Expense.fromJson(e)).toList(growable: false);
+  }
+
+  Future<void> saveSingleExpense(Expense expense) async {
+    final List<Expense> expenses = loadExpenses();
+    final int index = expenses.indexWhere((e) => e.id == expense.id);
+    final List<Expense> updated = List<Expense>.from(expenses);
+    if (index < 0) {
+      updated.insert(0, expense);
+    } else {
+      updated[index] = expense;
+    }
+    await _storage.writeList(LocalStorage.expensesKey, updated.map((e) => e.toJson()).toList());
+    _enqueueOfflineAction(action: 'set', collection: 'expenses', documentId: expense.id, data: expense.toJson());
+  }
+
+  Future<void> deleteSingleExpense(String id) async {
+    final List<Expense> updated = loadExpenses().where((e) => e.id != id).toList();
+    await _storage.writeList(LocalStorage.expensesKey, updated.map((e) => e.toJson()).toList());
+    _enqueueOfflineAction(action: 'delete', collection: 'expenses', documentId: id);
+  }
+
+  // --- Shift Management ---
+  Shift? loadCurrentShift() {
+    final map = _storage.readMap(LocalStorage.currentShiftKey);
+    if (map != null) return Shift.fromJson(map);
+    return null;
+  }
+
+  Future<void> saveCurrentShift(Shift shift) async {
+    await _storage.writeMap(LocalStorage.currentShiftKey, shift.toJson());
+  }
+
+  Future<void> clearCurrentShift() async {
+    await _storage.remove(LocalStorage.currentShiftKey);
+  }
+
+  Future<void> saveShiftHistory(Shift shift) async {
+    final List<Map<String, dynamic>> shifts = _storage.readList(LocalStorage.shiftsHistoryKey);
+    shifts.add(shift.toJson());
+    await _storage.writeList(LocalStorage.shiftsHistoryKey, shifts);
+    _enqueueOfflineAction(action: 'set', collection: 'shifts', documentId: shift.id, data: shift.toJson());
+  }
 }
+

@@ -65,12 +65,12 @@ class Formatters {
   }
 
   /// ڕێژە بە سەدە.
-  static String percent(num value) => '${NumberFormat('#,##0.##').format(value)}%';
+  static String percent(num value) =>
+      '${NumberFormat('#,##0.##').format(value)}%';
 
   static String monthName(int month) => kurdishMonths[(month - 1) % 12];
 
-  static String weekdayName(DateTime date) =>
-      kurdishWeekdays[date.weekday % 7];
+  static String weekdayName(DateTime date) => kurdishWeekdays[date.weekday % 7];
 
   static String weekdayShort(DateTime date) =>
       kurdishWeekdaysShort[date.weekday % 7];

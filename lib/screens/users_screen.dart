@@ -27,8 +27,8 @@ class UsersScreen extends StatelessWidget {
                 child: Text(
                   '${AppStrings.users}: ${users.length}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
               FilledButton.icon(
@@ -169,35 +169,38 @@ class _UserTile extends StatelessWidget {
     AuthController auth,
   ) async {
     switch (action) {
-      case 'edit': {
-        await openUserForm(context, user: user);
-      }
-      case 'toggle': {
-        final String? error = auth.saveUser(
-          existing: user,
-          fullName: user.fullName,
-          username: user.username,
-          role: user.role,
-          isActive: !user.isActive,
-        );
-        if (error != null && context.mounted) {
-          AppDialogs.showMessage(context, error, isError: true);
+      case 'edit':
+        {
+          await openUserForm(context, user: user);
         }
-      }
-      case 'delete': {
-        final bool confirmed = await AppDialogs.confirm(
-          context,
-          message: AppStrings.deleteUserConfirm,
-          confirmLabel: AppStrings.delete,
-          danger: true,
-        );
-        if (!confirmed || !context.mounted) return;
-        final String? error = auth.deleteUser(user.id);
-        if (!context.mounted) return;
-        if (error != null) {
-          AppDialogs.showMessage(context, error, isError: true);
+      case 'toggle':
+        {
+          final String? error = auth.saveUser(
+            existing: user,
+            fullName: user.fullName,
+            username: user.username,
+            role: user.role,
+            isActive: !user.isActive,
+          );
+          if (error != null && context.mounted) {
+            AppDialogs.showMessage(context, error, isError: true);
+          }
         }
-      }
+      case 'delete':
+        {
+          final bool confirmed = await AppDialogs.confirm(
+            context,
+            message: AppStrings.deleteUserConfirm,
+            confirmLabel: AppStrings.delete,
+            danger: true,
+          );
+          if (!confirmed || !context.mounted) return;
+          final String? error = auth.deleteUser(user.id);
+          if (!context.mounted) return;
+          if (error != null) {
+            AppDialogs.showMessage(context, error, isError: true);
+          }
+        }
     }
   }
 }
@@ -250,8 +253,9 @@ class _UserFormDialogState extends State<_UserFormDialog> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.user?.fullName ?? '');
-    _usernameController =
-        TextEditingController(text: widget.user?.username ?? '');
+    _usernameController = TextEditingController(
+      text: widget.user?.username ?? '',
+    );
     _role = widget.user?.role ?? UserRole.cashier;
     _isActive = widget.user?.isActive ?? true;
   }
@@ -268,13 +272,13 @@ class _UserFormDialogState extends State<_UserFormDialog> {
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
     final String? error = context.read<AuthController>().saveUser(
-          existing: widget.user,
-          fullName: _nameController.text,
-          username: _usernameController.text,
-          role: _role,
-          isActive: _isActive,
-          password: _passwordController.text,
-        );
+      existing: widget.user,
+      fullName: _nameController.text,
+      username: _usernameController.text,
+      role: _role,
+      isActive: _isActive,
+      password: _passwordController.text,
+    );
     if (error != null) {
       Navigator.of(context).pop(_UserFormOutcome(saved: false, error: error));
       return;
@@ -305,8 +309,8 @@ class _UserFormDialogState extends State<_UserFormDialog> {
                   ),
                   validator: (String? value) =>
                       (value == null || value.trim().isEmpty)
-                          ? AppStrings.required
-                          : null,
+                      ? AppStrings.required
+                      : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -331,7 +335,7 @@ class _UserFormDialogState extends State<_UserFormDialog> {
                     labelText: isNew
                         ? AppStrings.password
                         : '${AppStrings.changePassword} '
-                            '(${AppStrings.optional})',
+                              '(${AppStrings.optional})',
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
                       icon: Icon(

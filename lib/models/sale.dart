@@ -12,7 +12,8 @@ enum PaymentMethod {
 
   final String label;
 
-  static PaymentMethod fromName(String? name) => PaymentMethod.values.firstWhere(
+  static PaymentMethod fromName(String? name) =>
+      PaymentMethod.values.firstWhere(
         (PaymentMethod method) => method.name == name,
         orElse: () => PaymentMethod.cash,
       );
@@ -30,13 +31,13 @@ class SaleItem {
   });
 
   factory SaleItem.fromCartItem(CartItem item) => SaleItem(
-        productId: item.productId,
-        name: item.name,
-        unit: item.unit,
-        unitPrice: item.unitPrice,
-        unitCost: item.unitCost,
-        quantity: item.quantity,
-      );
+    productId: item.productId,
+    name: item.name,
+    unit: item.unit,
+    unitPrice: item.unitPrice,
+    unitCost: item.unitCost,
+    quantity: item.quantity,
+  );
 
   final String productId;
   final String name;
@@ -52,22 +53,22 @@ class SaleItem {
   double get profit => total - totalCost;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'productId': productId,
-        'name': name,
-        'unit': unit.name,
-        'unitPrice': unitPrice,
-        'unitCost': unitCost,
-        'quantity': quantity,
-      };
+    'productId': productId,
+    'name': name,
+    'unit': unit.name,
+    'unitPrice': unitPrice,
+    'unitCost': unitCost,
+    'quantity': quantity,
+  };
 
   factory SaleItem.fromJson(Map<String, dynamic> json) => SaleItem(
-        productId: json['productId'] as String? ?? '',
-        name: json['name'] as String? ?? '',
-        unit: ProductUnit.fromName(json['unit'] as String?),
-        unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0,
-        unitCost: (json['unitCost'] as num?)?.toDouble() ?? 0,
-        quantity: (json['quantity'] as num?)?.toDouble() ?? 0,
-      );
+    productId: json['productId'] as String? ?? '',
+    name: json['name'] as String? ?? '',
+    unit: ProductUnit.fromName(json['unit'] as String?),
+    unitPrice: (json['unitPrice'] as num?)?.toDouble() ?? 0,
+    unitCost: (json['unitCost'] as num?)?.toDouble() ?? 0,
+    quantity: (json['quantity'] as num?)?.toDouble() ?? 0,
+  );
 }
 
 /// پسووڵەی فرۆشتن.
@@ -140,8 +141,10 @@ class Sale {
       items.fold<double>(0, (double sum, SaleItem item) => sum + item.total);
 
   /// کۆی تێچووی کاڵاکان (بەپێی نرخی کڕین).
-  double get totalCost =>
-      items.fold<double>(0, (double sum, SaleItem item) => sum + item.totalCost);
+  double get totalCost => items.fold<double>(
+    0,
+    (double sum, SaleItem item) => sum + item.totalCost,
+  );
 
   /// داشکاندن بە سنووردارکردن — نابێت لە کۆی کاڵاکان زیاتر بێت.
   double get safeDiscount {
@@ -211,49 +214,50 @@ class Sale {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'id': id,
-        'items': items.map((SaleItem item) => item.toJson()).toList(),
-        'createdAt': createdAt.toIso8601String(),
-        'cashierId': cashierId,
-        'cashierName': cashierName,
-        'discount': discount,
-        'taxPercent': taxPercent,
-        'paidAmount': paidAmount,
-        'paymentMethod': paymentMethod.name,
-        'customerName': customerName,
-        'customerPhone': customerPhone,
-        'note': note,
-        'pointsUsed': pointsUsed,
-        'pointsDiscount': pointsDiscount,
-        'pointsEarned': pointsEarned,
-        'voidedAt': voidedAt?.toIso8601String(),
-        'voidedBy': voidedBy,
-      };
+    'id': id,
+    'items': items.map((SaleItem item) => item.toJson()).toList(),
+    'createdAt': createdAt.toIso8601String(),
+    'cashierId': cashierId,
+    'cashierName': cashierName,
+    'discount': discount,
+    'taxPercent': taxPercent,
+    'paidAmount': paidAmount,
+    'paymentMethod': paymentMethod.name,
+    'customerName': customerName,
+    'customerPhone': customerPhone,
+    'note': note,
+    'pointsUsed': pointsUsed,
+    'pointsDiscount': pointsDiscount,
+    'pointsEarned': pointsEarned,
+    'voidedAt': voidedAt?.toIso8601String(),
+    'voidedBy': voidedBy,
+  };
 
   factory Sale.fromJson(Map<String, dynamic> json) => Sale(
-        id: json['id'] as String,
-        items: (json['items'] as List<dynamic>? ?? <dynamic>[])
-            .map((dynamic item) =>
-                SaleItem.fromJson(Map<String, dynamic>.from(item as Map)))
-            .toList(),
-        createdAt: DateTime.tryParse(json['createdAt'] as String? ?? '') ??
-            DateTime.now(),
-        cashierId: json['cashierId'] as String? ?? '',
-        cashierName: json['cashierName'] as String? ?? '',
-        discount: (json['discount'] as num?)?.toDouble() ?? 0,
-        taxPercent: (json['taxPercent'] as num?)?.toDouble() ?? 0,
-        paidAmount: (json['paidAmount'] as num?)?.toDouble() ?? 0,
-        paymentMethod: PaymentMethod.fromName(json['paymentMethod'] as String?),
-        customerName: json['customerName'] as String? ?? '',
-        customerPhone: json['customerPhone'] as String? ?? '',
-        note: json['note'] as String? ?? '',
-        pointsUsed: (json['pointsUsed'] as num?)?.toInt() ?? 0,
-        pointsDiscount: (json['pointsDiscount'] as num?)?.toDouble() ?? 0,
-        pointsEarned: (json['pointsEarned'] as num?)?.toInt() ?? 0,
-        voidedAt: json['voidedAt'] == null
-            ? null
-            : DateTime.tryParse(json['voidedAt'] as String),
-        voidedBy: json['voidedBy'] as String?,
-      );
+    id: json['id'] as String,
+    items: (json['items'] as List<dynamic>? ?? <dynamic>[])
+        .map(
+          (dynamic item) =>
+              SaleItem.fromJson(Map<String, dynamic>.from(item as Map)),
+        )
+        .toList(),
+    createdAt:
+        DateTime.tryParse(json['createdAt'] as String? ?? '') ?? DateTime.now(),
+    cashierId: json['cashierId'] as String? ?? '',
+    cashierName: json['cashierName'] as String? ?? '',
+    discount: (json['discount'] as num?)?.toDouble() ?? 0,
+    taxPercent: (json['taxPercent'] as num?)?.toDouble() ?? 0,
+    paidAmount: (json['paidAmount'] as num?)?.toDouble() ?? 0,
+    paymentMethod: PaymentMethod.fromName(json['paymentMethod'] as String?),
+    customerName: json['customerName'] as String? ?? '',
+    customerPhone: json['customerPhone'] as String? ?? '',
+    note: json['note'] as String? ?? '',
+    pointsUsed: (json['pointsUsed'] as num?)?.toInt() ?? 0,
+    pointsDiscount: (json['pointsDiscount'] as num?)?.toDouble() ?? 0,
+    pointsEarned: (json['pointsEarned'] as num?)?.toInt() ?? 0,
+    voidedAt: json['voidedAt'] == null
+        ? null
+        : DateTime.tryParse(json['voidedAt'] as String),
+    voidedBy: json['voidedBy'] as String?,
+  );
 }
-

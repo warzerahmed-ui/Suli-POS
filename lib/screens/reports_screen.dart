@@ -68,8 +68,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
       context: context,
       firstDate: DateTime(now.year - 3),
       lastDate: DateTime(now.year + 1),
-      initialDateRange: _customRange ??
-          DateTimeRange(start: now.subtract(const Duration(days: 30)), end: now),
+      initialDateRange:
+          _customRange ??
+          DateTimeRange(
+            start: now.subtract(const Duration(days: 30)),
+            end: now,
+          ),
     );
     if (picked == null) return;
     setState(() {
@@ -88,8 +92,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
     final SaleSummary summary = sales.summaryOf(rangeSales);
     final List<ProductPerformance> topProducts =
         ProductPerformance.topFromSales(rangeSales, limit: 8);
-    final List<CashierPerformance> cashiers =
-        CashierPerformance.fromSales(rangeSales);
+    final List<CashierPerformance> cashiers = CashierPerformance.fromSales(
+      rangeSales,
+    );
     final List<DailyPoint> points = DailyPoint.forRange(
       sales.sales,
       from: range.start,
@@ -122,7 +127,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
               label: Text(
                 _kind == _RangeKind.custom
                     ? '${Formatters.date(range.start)} — '
-                        '${Formatters.date(range.end)}'
+                          '${Formatters.date(range.end)}'
                     : AppStrings.customRange,
               ),
             ),
@@ -266,45 +271,46 @@ class _TopProductsCard extends StatelessWidget {
               title: AppStrings.noSalesInRange,
             )
           : Column(
-              children: products.asMap().entries.map(
-                    (MapEntry<int, ProductPerformance> entry) {
-                      final int rank = entry.key + 1;
-                      final ProductPerformance item = entry.value;
-                      return ListTile(
-                        leading: CircleAvatar(
-                          radius: 16,
-                          backgroundColor: theme.colorScheme.primary
-                              .withValues(alpha: 0.12),
-                          child: Text(
-                            '$rank',
-                            style: theme.textTheme.labelMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              color: theme.colorScheme.primary,
-                            ),
-                          ),
-                        ),
-                        title: Text(
-                          item.name,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        subtitle: Text(
-                          '${AppStrings.quantitySold}: '
-                          '${Formatters.quantity(item.quantity)} • '
-                          '${AppStrings.revenue}: '
-                          '${settings.money(item.revenue)}',
-                        ),
-                        trailing: Text(
-                          settings.money(item.profit),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
-                            color: success,
-                          ),
-                        ),
-                      );
-                    },
-                  ).toList(),
+              children: products.asMap().entries.map((
+                MapEntry<int, ProductPerformance> entry,
+              ) {
+                final int rank = entry.key + 1;
+                final ProductPerformance item = entry.value;
+                return ListTile(
+                  leading: CircleAvatar(
+                    radius: 16,
+                    backgroundColor: theme.colorScheme.primary.withValues(
+                      alpha: 0.12,
+                    ),
+                    child: Text(
+                      '$rank',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                  title: Text(
+                    item.name,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  subtitle: Text(
+                    '${AppStrings.quantitySold}: '
+                    '${Formatters.quantity(item.quantity)} • '
+                    '${AppStrings.revenue}: '
+                    '${settings.money(item.revenue)}',
+                  ),
+                  trailing: Text(
+                    settings.money(item.profit),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: success,
+                    ),
+                  ),
+                );
+              }).toList(),
             ),
     );
   }
@@ -398,10 +404,7 @@ Future<void> exportSalesCsv(BuildContext context, List<Sale> sales) async {
 
 /// کورتەی شێوازەکانی پارەدان (نەقد، کارت، قەرز).
 class _PaymentBreakdownCard extends StatelessWidget {
-  const _PaymentBreakdownCard({
-    required this.summary,
-    required this.settings,
-  });
+  const _PaymentBreakdownCard({required this.summary, required this.settings});
 
   final SaleSummary summary;
   final SettingsController settings;

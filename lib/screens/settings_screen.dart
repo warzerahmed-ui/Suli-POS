@@ -26,11 +26,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final TextEditingController _currencyController = TextEditingController();
   final TextEditingController _taxController = TextEditingController();
   final TextEditingController _footerController = TextEditingController();
-  final TextEditingController _pointsPerAmountController = TextEditingController();
-  final TextEditingController _amountPerPointController = TextEditingController();
 
   int _decimals = 0;
-  bool _pointsEnabled = true;
   bool _loaded = false;
 
   @override
@@ -49,8 +46,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _currencyController.dispose();
     _taxController.dispose();
     _footerController.dispose();
-    _pointsPerAmountController.dispose();
-    _amountPerPointController.dispose();
     super.dispose();
   }
 
@@ -62,14 +57,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _currencyController.text = settings.currencySymbol;
     _taxController.text = settings.taxPercent == 0
         ? '0'
-        : settings.taxPercent.toStringAsFixed(2).replaceAll(RegExp(r'\.?0+$'), '');
+        : settings.taxPercent
+              .toStringAsFixed(2)
+              .replaceAll(RegExp(r'\.?0+$'), '');
     _footerController.text = settings.receiptFooter;
     _decimals = settings.currencyDecimals;
-    _pointsEnabled = settings.pointsEnabled;
-    _pointsPerAmountController.text =
-        settings.pointsPerAmount.toStringAsFixed(0);
-    _amountPerPointController.text =
-        settings.amountPerPoint.toStringAsFixed(0);
   }
 
   Future<void> _save() async {
@@ -84,15 +76,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         currencySymbol: _currencyController.text.trim(),
         currencyDecimals: _decimals,
         taxPercent:
-            double.tryParse(_taxController.text.trim().replaceAll(',', '')) ?? 0,
+            double.tryParse(_taxController.text.trim().replaceAll(',', '')) ??
+            0,
         receiptFooter: _footerController.text.trim(),
-        pointsEnabled: _pointsEnabled,
-        pointsPerAmount:
-            double.tryParse(_pointsPerAmountController.text.trim().replaceAll(',', '')) ??
-                1000,
-        amountPerPoint:
-            double.tryParse(_amountPerPointController.text.trim().replaceAll(',', '')) ??
-                10,
       ),
     );
     if (!mounted) return;
@@ -121,8 +107,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   validator: (String? value) =>
                       (value == null || value.trim().isEmpty)
-                          ? AppStrings.required
-                          : null,
+                      ? AppStrings.required
+                      : null,
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -153,8 +139,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         ),
                         validator: (String? value) =>
                             (value == null || value.trim().isEmpty)
-                                ? AppStrings.required
-                                : null,
+                            ? AppStrings.required
+                            : null,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -205,67 +191,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ],
             ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        SectionCard(
-          title: 'سیستەمی پۆینتی وەفاداری (Loyalty Points)',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              SwitchListTile(
-                value: _pointsEnabled,
-                onChanged: (bool val) => setState(() => _pointsEnabled = val),
-                title: const Text(
-                  'چالاککردنی سیستەمی پۆینت بۆ کڕیاران',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: const Text(
-                  'کڕیاران لەگەڵ هەر کڕینێک بەپێی بڕی پسووڵەکەیان پۆینت وەردەگرن و دەتوانن بۆ داشکاندن لە کڕینەکانی تر بەکاری بهێنن.',
-                ),
-                secondary: const Icon(Icons.stars, color: Colors.amber),
-              ),
-              if (_pointsEnabled) ...<Widget>[
-                const Divider(),
-                const SizedBox(height: 8),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: TextFormField(
-                        controller: _pointsPerAmountController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'بڕی خەرجکراو بۆ ١ پۆینت (د.ع)',
-                          helperText: 'نموونە: ١,٠٠٠ د.ع = ١ پۆینت بەدەست دەهێنێت',
-                          prefixIcon: Icon(Icons.shopping_bag_outlined),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _amountPerPointController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'بەهای داشکاندنی هەر ١ پۆینت (د.ع)',
-                          helperText: 'نموونە: هەر ١ پۆینت = ١٠ د.ع داشکاندن',
-                          prefixIcon: Icon(Icons.price_check),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-              const SizedBox(height: 14),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: _save,
-                  icon: const Icon(Icons.save_outlined),
-                  label: const Text('پاشەکەوتکردنی ڕێکخستنی پۆینت'),
-                ),
-              ),
-            ],
           ),
         ),
         const SizedBox(height: 16),

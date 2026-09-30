@@ -227,10 +227,9 @@ class _AppShellState extends State<AppShell> {
               const SizedBox(height: 12),
               Text(
                 settings.settings.storeName,
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w800),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
               ),
             ],
           ),
@@ -244,9 +243,15 @@ class _AppShellState extends State<AppShell> {
         ),
         const Divider(),
         ListTile(
-          leading: const Icon(Icons.install_mobile_rounded, color: AppColors.primary),
+          leading: const Icon(
+            Icons.install_mobile_rounded,
+            color: AppColors.primary,
+          ),
           title: const Text(AppStrings.installApp),
-          subtitle: const Text(AppStrings.installAppDesc, style: TextStyle(fontSize: 11)),
+          subtitle: const Text(
+            AppStrings.installAppDesc,
+            style: TextStyle(fontSize: 11),
+          ),
           onTap: () {
             Navigator.of(context).pop();
             _showPwaInstallGuide(context);
@@ -345,7 +350,6 @@ class _UserMenuButton extends StatelessWidget {
   }
 }
 
-
 /// نیشاندەری زیرەکی پەیوەندی و ئۆفلاین لە شریتی سەرەوە
 class _ConnectionBadge extends StatelessWidget {
   const _ConnectionBadge();
@@ -361,31 +365,37 @@ class _ConnectionBadge extends StatelessWidget {
           valueListenable: repo.pendingSyncCountNotifier,
           builder: (BuildContext context, int pending, Widget? _) {
             final bool fullyOnline = isOnline && pending == 0;
-            final Color color =
-                fullyOnline ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
+            final Color color = fullyOnline
+                ? const Color(0xFF10B981)
+                : const Color(0xFFF59E0B);
             final IconData icon = fullyOnline
                 ? Icons.cloud_done_rounded
                 : (pending > 0
-                    ? Icons.cloud_upload_outlined
-                    : Icons.cloud_off_rounded);
+                      ? Icons.cloud_upload_outlined
+                      : Icons.cloud_off_rounded);
             final String label = fullyOnline
                 ? 'ئۆنلاین (فایەربەیس)'
                 : (pending > 0
-                    ? 'ئۆفلاین ($pending چاوەڕێیە)'
-                    : 'ئۆفلاین (بێ ئینتەرنێت)');
+                      ? 'ئۆفلاین ($pending چاوەڕێیە)'
+                      : 'ئۆفلاین (بێ ئینتەرنێت)');
 
             return Tooltip(
               message: fullyOnline
                   ? 'سیستەم پەیوەستە بە فایەربەیس (suli-pos) - هەموو داتاکان هاوکاتن'
                   : 'سیستەم لە دۆخی ئۆفلایندایە - کارکردن بەردەوامە و هیچ فرۆشتنێک ناوەستێت. کلیک بکە بۆ هاوکاتکردنەوە.',
               child: InkWell(
-                onTap: () => _showSyncDialog(context, repo, fullyOnline, pending),
+                onTap: () =>
+                    _showSyncDialog(context, repo, fullyOnline, pending),
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 4,
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(20),
@@ -431,7 +441,9 @@ class _ConnectionBadge extends StatelessWidget {
               title: Row(
                 children: <Widget>[
                   Icon(
-                    isOnline ? Icons.cloud_done_rounded : Icons.cloud_off_rounded,
+                    isOnline
+                        ? Icons.cloud_done_rounded
+                        : Icons.cloud_off_rounded,
                     color: isOnline
                         ? const Color(0xFF10B981)
                         : const Color(0xFFF59E0B),
@@ -495,8 +507,8 @@ class _ConnectionBadge extends StatelessWidget {
                                   synced > 0
                                       ? '$synced مامەڵە بە سەرکەوتوویی نێردرانە فایەربەیس.'
                                       : (repo.isOnlineNotifier.value
-                                          ? 'پەیوەندی لەسەر هێڵە و هەموو داتاکان هاوکاتن.'
-                                          : 'هێشتا ئینتەرنێت پەیدا نەبووەتەوە، داتاکان لە ئامێرەکە پارێزراون.'),
+                                            ? 'پەیوەندی لەسەر هێڵە و هەموو داتاکان هاوکاتن.'
+                                            : 'هێشتا ئینتەرنێت پەیدا نەبووەتەوە، داتاکان لە ئامێرەکە پارێزراون.'),
                                 ),
                               ),
                             );
@@ -509,7 +521,9 @@ class _ConnectionBadge extends StatelessWidget {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Icon(Icons.sync_rounded),
-                  label: Text(syncing ? 'هاوکات دەکرێت...' : 'هاوکاتکردنەوە ئێستا'),
+                  label: Text(
+                    syncing ? 'هاوکات دەکرێت...' : 'هاوکاتکردنەوە ئێستا',
+                  ),
                 ),
               ],
             );
@@ -527,7 +541,9 @@ void _showPwaInstallGuide(BuildContext context) {
       return DefaultTabController(
         length: 2,
         child: AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
           title: Row(
             children: <Widget>[
               Container(
@@ -536,7 +552,11 @@ void _showPwaInstallGuide(BuildContext context) {
                   color: AppColors.primary.withAlpha(25),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.install_mobile_rounded, color: AppColors.primary, size: 28),
+                child: const Icon(
+                  Icons.install_mobile_rounded,
+                  color: AppColors.primary,
+                  size: 28,
+                ),
               ),
               const SizedBox(width: 12),
               const Expanded(

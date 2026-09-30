@@ -60,33 +60,32 @@ class Customer {
   }
 
   Map<String, dynamic> toJson() => <String, dynamic>{
-        'id': id,
-        'name': name,
-        'phone': phone,
-        'points': points,
-        'totalSpent': totalSpent,
-        'totalPointsEarned': totalPointsEarned,
-        'totalPointsUsed': totalPointsUsed,
-        'note': note,
-        'createdAt': createdAt.toIso8601String(),
-        'updatedAt': updatedAt.toIso8601String(),
-      };
+    'id': id,
+    'name': name,
+    'phone': phone,
+    'points': points,
+    'totalSpent': totalSpent,
+    'totalPointsEarned': totalPointsEarned,
+    'totalPointsUsed': totalPointsUsed,
+    'note': note,
+    'createdAt': createdAt.toIso8601String(),
+    'updatedAt': updatedAt.toIso8601String(),
+  };
 
   factory Customer.fromJson(Map<String, dynamic> json) => Customer(
-        id: json['id'] as String? ?? '',
-        name: json['name'] as String? ?? '',
-        phone: json['phone'] as String? ?? '',
-        points: (json['points'] as num?)?.toInt() ?? 0,
-        totalSpent: (json['totalSpent'] as num?)?.toDouble() ?? 0,
-        totalPointsEarned: (json['totalPointsEarned'] as num?)?.toInt() ?? 0,
-        totalPointsUsed: (json['totalPointsUsed'] as num?)?.toInt() ?? 0,
-        note: json['note'] as String? ?? '',
-        createdAt: json['createdAt'] != null
-            ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
-            : DateTime.now(),
-        updatedAt: json['updatedAt'] != null
-            ? DateTime.tryParse(json['updatedAt'] as String) ?? DateTime.now()
-            : DateTime.now(),
-      );
+    id: json['id'] as String? ?? '',
+    name: json['name'] as String? ?? '',
+    phone: json['phone'] as String? ?? '',
+    points: (json['points'] as num?)?.toInt() ?? 0,
+    totalSpent: (json['totalSpent'] as num?)?.toDouble() ?? 0,
+    totalPointsEarned: (json['totalPointsEarned'] as num?)?.toInt() ?? 0,
+    totalPointsUsed: (json['totalPointsUsed'] as num?)?.toInt() ?? 0,
+    note: json['note'] as String? ?? '',
+    createdAt: json['createdAt'] != null
+        ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
+        : DateTime.now(),
+    updatedAt: json['updatedAt'] != null
+        ? DateTime.tryParse(json['updatedAt'] as String) ?? DateTime.now()
+        : DateTime.now(),
+  );
 }
-

@@ -36,8 +36,9 @@ class CategoriesScreen extends StatelessWidget {
                   const SizedBox(height: 8),
               itemBuilder: (BuildContext context, int index) {
                 final Category category = categories[index];
-                final int productCount =
-                    inventory.productCountInCategory(category.id);
+                final int productCount = inventory.productCountInCategory(
+                  category.id,
+                );
                 return Card(
                   child: ListTile(
                     leading: Container(
@@ -54,9 +55,7 @@ class CategoriesScreen extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    subtitle: Text(
-                      '${AppStrings.productCount}: $productCount',
-                    ),
+                    subtitle: Text('${AppStrings.productCount}: $productCount'),
                     trailing: PopupMenuButton<String>(
                       tooltip: AppStrings.actions,
                       onSelected: (String value) async {
@@ -75,18 +74,20 @@ class CategoriesScreen extends StatelessWidget {
                       },
                       itemBuilder: (BuildContext context) =>
                           <PopupMenuEntry<String>>[
-                        const PopupMenuItem<String>(
-                          value: 'edit',
-                          child: Text(AppStrings.edit),
-                        ),
-                        PopupMenuItem<String>(
-                          value: 'delete',
-                          child: Text(
-                            AppStrings.delete,
-                            style: TextStyle(color: theme.colorScheme.error),
-                          ),
-                        ),
-                      ],
+                            const PopupMenuItem<String>(
+                              value: 'edit',
+                              child: Text(AppStrings.edit),
+                            ),
+                            PopupMenuItem<String>(
+                              value: 'delete',
+                              child: Text(
+                                AppStrings.delete,
+                                style: TextStyle(
+                                  color: theme.colorScheme.error,
+                                ),
+                              ),
+                            ),
+                          ],
                     ),
                   ),
                 );
@@ -111,7 +112,10 @@ const List<int> _categoryColors = <int>[
 ];
 
 /// کردنەوەی فۆرمی پۆل (زیادکردن یان دەستکاری).
-Future<void> openCategoryForm(BuildContext context, {Category? category}) async {
+Future<void> openCategoryForm(
+  BuildContext context, {
+  Category? category,
+}) async {
   final bool? saved = await showDialog<bool>(
     context: context,
     builder: (BuildContext dialogContext) =>

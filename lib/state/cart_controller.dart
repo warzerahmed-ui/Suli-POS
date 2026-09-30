@@ -29,15 +29,19 @@ class CartController extends ChangeNotifier {
 
   int get lineCount => _items.length;
 
-  double get itemQuantity =>
-      _items.fold<double>(0, (double sum, CartItem item) => sum + item.quantity);
+  double get itemQuantity => _items.fold<double>(
+    0,
+    (double sum, CartItem item) => sum + item.quantity,
+  );
 
   double get discount => _discount;
 
   double get taxPercent => _taxPercent;
 
-  double get subtotal =>
-      _items.fold<double>(0, (double sum, CartItem item) => sum + item.lineTotal);
+  double get subtotal => _items.fold<double>(
+    0,
+    (double sum, CartItem item) => sum + item.lineTotal,
+  );
 
   double get safeDiscount {
     if (_discount <= 0) return 0;
@@ -50,7 +54,10 @@ class CartController extends ChangeNotifier {
 
   double get estimatedProfit =>
       (subtotal - safeDiscount) -
-      _items.fold<double>(0, (double sum, CartItem item) => sum + item.lineCost);
+      _items.fold<double>(
+        0,
+        (double sum, CartItem item) => sum + item.lineCost,
+      );
 
   /// کاڵایەک لە سەبەتە زیاترە لە بڕی کۆگا.
   bool get hasStockIssue => _items.any((CartItem item) => item.exceedsStock);
@@ -90,8 +97,9 @@ class CartController extends ChangeNotifier {
   /// زیادکردنی کاڵا بۆ سەبەتە.
   String? addProduct(Product product, {double quantity = 1}) {
     if (product.isOutOfStock) return AppStrings.outOfStock;
-    final int index =
-        _items.indexWhere((CartItem item) => item.productId == product.id);
+    final int index = _items.indexWhere(
+      (CartItem item) => item.productId == product.id,
+    );
     final double amount = quantity <= 0 ? 1 : quantity;
     if (index < 0) {
       if (amount > product.stock) return AppStrings.insufficientStock;
@@ -161,8 +169,7 @@ class CartController extends ChangeNotifier {
   }
 
   Future<void> resumeHeldCart(String id) async {
-    final int index =
-        _heldCarts.indexWhere((HeldCart cart) => cart.id == id);
+    final int index = _heldCarts.indexWhere((HeldCart cart) => cart.id == id);
     if (index < 0) return;
     final HeldCart held = _heldCarts[index];
     _items

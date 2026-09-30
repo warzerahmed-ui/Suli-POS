@@ -129,17 +129,9 @@ class SaleDetailScreen extends StatelessWidget {
                   sale.paymentMethod.label,
                 ),
                 if (sale.customerName.isNotEmpty)
-                  _row(
-                    context,
-                    AppStrings.customerName,
-                    sale.customerName,
-                  ),
+                  _row(context, AppStrings.customerName, sale.customerName),
                 if (sale.customerPhone.isNotEmpty)
-                  _row(
-                    context,
-                    AppStrings.customerPhone,
-                    sale.customerPhone,
-                  ),
+                  _row(context, AppStrings.customerPhone, sale.customerPhone),
                 if (sale.isCredit) ...<Widget>[
                   _row(
                     context,
@@ -172,7 +164,9 @@ class SaleDetailScreen extends StatelessWidget {
               ],
             ),
           ),
-          if (sale.isCredit && sale.debtAmount > 0 && !sale.isVoided) ...<Widget>[
+          if (sale.isCredit &&
+              sale.debtAmount > 0 &&
+              !sale.isVoided) ...<Widget>[
             const SizedBox(height: 16),
             Card(
               color: StatusColors.warning(context).withValues(alpha: 0.12),
@@ -285,10 +279,10 @@ class SaleDetailScreen extends StatelessWidget {
     final AppUser? user = context.read<AuthController>().currentUser;
     if (user == null) return;
     await context.read<SalesController>().voidSale(
-          sale.id,
-          user: user,
-          inventory: context.read<InventoryController>(),
-        );
+      sale.id,
+      user: user,
+      inventory: context.read<InventoryController>(),
+    );
     if (!context.mounted) return;
     AppDialogs.showMessage(context, AppStrings.saleVoided);
   }
@@ -320,9 +314,9 @@ class SaleDetailScreen extends StatelessWidget {
                   Text(
                     '${AppStrings.remainingDebt}: ${settings.money(sale.debtAmount)}',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: StatusColors.warning(context),
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: StatusColors.warning(context),
+                    ),
                   ),
                   const SizedBox(height: 16),
                   SegmentedButton<bool>(
@@ -387,9 +381,9 @@ class SaleDetailScreen extends StatelessWidget {
     }
 
     await context.read<SalesController>().settleDebt(
-          sale.id,
-          amount: paymentAmount,
-        );
+      sale.id,
+      amount: paymentAmount,
+    );
 
     if (!context.mounted) return;
     AppDialogs.showMessage(context, AppStrings.debtSettled);

@@ -39,8 +39,8 @@ class SettingsController extends ChangeNotifier {
 
   /// شێوەکردنی بڕی پارە بەپێی ڕێکخستنەکان.
   String money(num value) => Formatters.money(
-        value,
-        symbol: _settings.currencySymbol,
-        decimals: _settings.currencyDecimals,
-      );
+    value,
+    symbol: _settings.currencySymbol,
+    decimals: _settings.currencyDecimals,
+  );
 }

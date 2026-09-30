@@ -16,10 +16,8 @@ class CustomerController extends ChangeNotifier {
   int get customerCount => _customers.length;
 
   /// کۆی هەموو ئەو پۆینتانەی لە دەستی کڕیاراندان
-  int get totalActivePoints => _customers.fold<int>(
-        0,
-        (int sum, Customer c) => sum + c.points,
-      );
+  int get totalActivePoints =>
+      _customers.fold<int>(0, (int sum, Customer c) => sum + c.points);
 
   void load() {
     _customers = _repository.loadCustomers()
@@ -55,7 +53,9 @@ class CustomerController extends ChangeNotifier {
 
   /// پاشەکەوتکردن یان دەستکاریکردنی کڕیار
   Future<void> upsertCustomer(Customer customer) async {
-    final int index = _customers.indexWhere((Customer c) => c.id == customer.id);
+    final int index = _customers.indexWhere(
+      (Customer c) => c.id == customer.id,
+    );
     if (index >= 0) {
       _customers = List<Customer>.from(_customers);
       _customers[index] = customer;
@@ -202,4 +202,3 @@ class CustomerController extends ChangeNotifier {
     await upsertCustomer(updated);
   }
 }
-

@@ -109,8 +109,9 @@ class PosProductTile extends StatelessWidget {
                           color: lowStock
                               ? theme.colorScheme.error
                               : theme.colorScheme.onSurfaceVariant,
-                          fontWeight:
-                              lowStock ? FontWeight.w700 : FontWeight.w400,
+                          fontWeight: lowStock
+                              ? FontWeight.w700
+                              : FontWeight.w400,
                         ),
                       ),
                   ],

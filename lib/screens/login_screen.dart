@@ -19,8 +19,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _usernameController =
-      TextEditingController(text: 'admin');
+  final TextEditingController _usernameController = TextEditingController(
+    text: 'admin',
+  );
   final TextEditingController _passwordController = TextEditingController();
 
   bool _obscurePassword = true;
@@ -35,9 +36,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _submit() {
     final String? error = context.read<AuthController>().signIn(
-          _usernameController.text,
-          _passwordController.text,
-        );
+      _usernameController.text,
+      _passwordController.text,
+    );
     setState(() => _error = error);
   }
 
@@ -77,10 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: <Widget>[
-                          const RandSuiteLogo(
-                            size: 48,
-                            showTagline: true,
-                          ),
+                          const RandSuiteLogo(size: 48, showTagline: true),
                           const SizedBox(height: 16),
                           Center(
                             child: Container(
@@ -89,7 +87,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.surfaceContainerHighest,
+                                color:
+                                    theme.colorScheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Row(
@@ -103,98 +102,99 @@ class _LoginScreenState extends State<LoginScreen> {
                                   const SizedBox(width: 6),
                                   Text(
                                     settings.storeName,
-                                    style: theme.textTheme.labelMedium?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: theme.textTheme.labelMedium
+                                        ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
                             ),
                           ),
                           const SizedBox(height: 24),
-                      TextField(
-                        controller: _usernameController,
-                        textInputAction: TextInputAction.next,
-                        decoration: const InputDecoration(
-                          labelText: AppStrings.username,
-                          prefixIcon: Icon(Icons.person_outline),
-                        ),
-                      ),
-                      const SizedBox(height: 14),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: _obscurePassword,
-                        onSubmitted: (_) => _submit(),
-                        decoration: InputDecoration(
-                          labelText: AppStrings.password,
-                          prefixIcon: const Icon(Icons.lock_outline),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                            ),
-                            onPressed: () => setState(
-                              () => _obscurePassword = !_obscurePassword,
+                          TextField(
+                            controller: _usernameController,
+                            textInputAction: TextInputAction.next,
+                            decoration: const InputDecoration(
+                              labelText: AppStrings.username,
+                              prefixIcon: Icon(Icons.person_outline),
                             ),
                           ),
-                        ),
-                      ),
-                      if (_error != null) ...<Widget>[
-                        const SizedBox(height: 14),
-                        Container(
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.error
-                                .withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            children: <Widget>[
-                              Icon(
-                                Icons.error_outline,
-                                size: 18,
-                                color: theme.colorScheme.error,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  _error!,
-                                  style: theme.textTheme.bodySmall?.copyWith(
-                                    color: theme.colorScheme.error,
-                                  ),
+                          const SizedBox(height: 14),
+                          TextField(
+                            controller: _passwordController,
+                            obscureText: _obscurePassword,
+                            onSubmitted: (_) => _submit(),
+                            decoration: InputDecoration(
+                              labelText: AppStrings.password,
+                              prefixIcon: const Icon(Icons.lock_outline),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscurePassword
+                                      ? Icons.visibility_outlined
+                                      : Icons.visibility_off_outlined,
+                                ),
+                                onPressed: () => setState(
+                                  () => _obscurePassword = !_obscurePassword,
                                 ),
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
-                      const SizedBox(height: 20),
-                      FilledButton.icon(
-                        onPressed: _submit,
-                        icon: const Icon(Icons.login),
-                        label: const Text(AppStrings.signIn),
+                          if (_error != null) ...<Widget>[
+                            const SizedBox(height: 14),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.error.withValues(
+                                  alpha: 0.12,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Row(
+                                children: <Widget>[
+                                  Icon(
+                                    Icons.error_outline,
+                                    size: 18,
+                                    color: theme.colorScheme.error,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      _error!,
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
+                                            color: theme.colorScheme.error,
+                                          ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                          const SizedBox(height: 20),
+                          FilledButton.icon(
+                            onPressed: _submit,
+                            icon: const Icon(Icons.login),
+                            label: const Text(AppStrings.signIn),
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            AppStrings.demoCredentials,
+                            textAlign: TextAlign.center,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 14),
-                      Text(
-                        AppStrings.demoCredentials,
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 20),
+                  const PoweredByRandSuite(light: true),
+                ],
               ),
-              const SizedBox(height: 20),
-              const PoweredByRandSuite(light: true),
-            ],
+            ),
           ),
         ),
       ),
-    ),
-  ),
-);
+    );
   }
 }

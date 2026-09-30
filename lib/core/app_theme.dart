@@ -48,15 +48,16 @@ class AppTheme {
 
   static ThemeData _build(Brightness brightness) {
     final bool isDark = brightness == Brightness.dark;
-    final ColorScheme scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      brightness: brightness,
-    ).copyWith(
-      primary: isDark ? const Color(0xFF4DB6A0) : AppColors.primary,
-      secondary: AppColors.secondary,
-      error: isDark ? const Color(0xFFEF5350) : AppColors.danger,
-      surface: isDark ? const Color(0xFF16221F) : Colors.white,
-    );
+    final ColorScheme scheme =
+        ColorScheme.fromSeed(
+          seedColor: AppColors.primary,
+          brightness: brightness,
+        ).copyWith(
+          primary: isDark ? const Color(0xFF4DB6A0) : AppColors.primary,
+          secondary: AppColors.secondary,
+          error: isDark ? const Color(0xFFEF5350) : AppColors.danger,
+          surface: isDark ? const Color(0xFF16221F) : Colors.white,
+        );
 
     final OutlineInputBorder border = OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
@@ -78,8 +79,9 @@ class AppTheme {
     required OutlineInputBorder border,
   }) {
     return base.copyWith(
-      scaffoldBackgroundColor:
-          isDark ? AppColors.surfaceDark : AppColors.surfaceLight,
+      scaffoldBackgroundColor: isDark
+          ? AppColors.surfaceDark
+          : AppColors.surfaceLight,
       appBarTheme: AppBarTheme(
         backgroundColor: isDark ? scheme.surface : Colors.white,
         foregroundColor: scheme.onSurface,
@@ -105,14 +107,18 @@ class AppTheme {
         filled: true,
         isDense: true,
         fillColor: isDark ? const Color(0xFF1B2926) : Colors.white,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
         border: border,
         enabledBorder: border,
         focusedBorder: border.copyWith(
           borderSide: BorderSide(color: scheme.primary, width: 1.6),
         ),
-        errorBorder: border.copyWith(borderSide: BorderSide(color: scheme.error)),
+        errorBorder: border.copyWith(
+          borderSide: BorderSide(color: scheme.error),
+        ),
         focusedErrorBorder: border.copyWith(
           borderSide: BorderSide(color: scheme.error, width: 1.6),
         ),
@@ -133,22 +139,25 @@ class AppTheme {
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           textStyle: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       ),
       listTileTheme: ListTileThemeData(
