@@ -242,10 +242,10 @@ class _PosScreenState extends State<PosScreen> {
     return GridView.builder(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 145,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-        childAspectRatio: 0.9,
+        maxCrossAxisExtent: 210,
+        mainAxisSpacing: 10,
+        crossAxisSpacing: 10,
+        childAspectRatio: 0.98,
       ),
       itemCount: products.length,
       itemBuilder: (BuildContext context, int index) {

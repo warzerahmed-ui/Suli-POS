@@ -26,6 +26,38 @@ class FirestoreService {
   Uri _documentUri(String collection, String documentId) =>
       Uri.parse('$_baseUrl/$collection/$documentId?key=$apiKey');
 
+  // --- Auth & Security ---
+  String? _idToken;
+  DateTime? _tokenExpiry;
+
+  Future<void> signInAnonymously() async {
+    try {
+      final res = await _client.post(
+        Uri.parse('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$apiKey'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'returnSecureToken': true}),
+      );
+      if (res.statusCode == 200) {
+        final data = jsonDecode(res.body);
+        _idToken = data['idToken'];
+        final int expiresIn = int.tryParse(data['expiresIn']?.toString() ?? '3600') ?? 3600;
+        _tokenExpiry = DateTime.now().add(Duration(seconds: expiresIn - 60));
+      }
+    } catch (e) {
+      debugPrint('Firebase Auth Error: $e');
+    }
+  }
+
+  Future<Map<String, String>> _getHeaders() async {
+    if (_idToken == null || (_tokenExpiry != null && DateTime.now().isAfter(_tokenExpiry!))) {
+      await signInAnonymously();
+    }
+    if (_idToken != null) {
+      return {'Authorization': 'Bearer $_idToken'};
+    }
+    return {};
+  }
+
   // ── Document Encoding & Decoding ──────────────────────────────────────────
 
   static Map<String, dynamic> encodeValue(dynamic value) {
@@ -173,8 +205,8 @@ class FirestoreService {
         'fields': encodeFields(data),
       };
       final http.Response res = await _client.patch(
-        _documentUri(collection, documentId), headers: await _getHeaders(),
-        headers: <String, String>{'Content-Type': 'application/json'},
+        _documentUri(collection, documentId),
+        headers: <String, String>{'Content-Type': 'application/json', ...await _getHeaders()},
         body: jsonEncode(body),
       );
       return res.statusCode >= 200 && res.statusCode < 300;
